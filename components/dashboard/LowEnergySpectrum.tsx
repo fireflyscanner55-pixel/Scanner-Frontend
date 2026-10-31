@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -33,83 +32,51 @@ interface LowEnergySpectrumChartProps {
 const GAMMA_COLOR = RADIATION_COLORS.gamma.primary;
 const CHANNEL_COUNT = 561;
 
-const gaussian = (
-  x: number,
-  mean: number,
-  sigma: number
-) =>
+const gaussian = (x: number, mean: number, sigma: number) =>
   Math.exp(-0.5 * ((x - mean) / sigma) ** 2);
 
 // Reproducible pseudo-random numbers.
 function randomValue(seed: number) {
-  const value =
-    Math.sin(seed * 127.1 + 78.233) * 43758.5453;
+  const value = Math.sin(seed * 127.1 + 78.233) * 43758.5453;
 
   return value - Math.floor(value);
 }
 
 // Approximate Poisson-distributed counting noise.
-function poissonCount(
-  expected: number,
-  seed: number
-) {
+function poissonCount(expected: number, seed: number) {
   if (expected <= 0) return 0;
 
   const u1 = Math.max(1e-10, randomValue(seed));
   const u2 = randomValue(seed + 97);
 
-  const normal =
-    Math.sqrt(-2 * Math.log(u1)) *
-    Math.cos(2 * Math.PI * u2);
+  const normal = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
 
-  return Math.max(
-    0,
-    Math.round(
-      expected + Math.sqrt(expected) * normal
-    )
-  );
+  return Math.max(0, Math.round(expected + Math.sqrt(expected) * normal));
 }
 
 function generateSpectrum(
   peakEnergy: number,
   maxEnergy: number,
   peakHeight: number,
-  peakWidth: number
+  peakWidth: number,
 ): SpectrumPoint[] {
-  return Array.from(
-    { length: CHANNEL_COUNT },
-    (_, index) => {
-      const energy =
-        (index / (CHANNEL_COUNT - 1)) *
-        maxEnergy;
+  return Array.from({ length: CHANNEL_COUNT }, (_, index) => {
+    const energy = (index / (CHANNEL_COUNT - 1)) * maxEnergy;
 
-      // Very low background counting rate.
-      // Starts at zero, with occasional low counts.
-      const baseline =
-        index === 0
-          ? 0
-          : 0.45 + 1.0 * Math.exp(-energy / 35);
+    // Very low background counting rate.
+    // Starts at zero, with occasional low counts.
+    const baseline = index === 0 ? 0 : 0.45 + 1.0 * Math.exp(-energy / 35);
 
-      // Sharp full-energy absorption photopeak.
-      const photopeak =
-        peakHeight *
-        gaussian(
-          energy,
-          peakEnergy,
-          peakWidth
-        );
+    // Sharp full-energy absorption photopeak.
+    const photopeak = peakHeight * gaussian(energy, peakEnergy, peakWidth);
 
-      const counts = poissonCount(
-        baseline + photopeak,
-        index + 1
-      );
+    const counts = poissonCount(baseline + photopeak, index + 1);
 
-      return {
-        energy: Number(energy.toFixed(3)),
-        counts,
-      };
-    }
-  );
+    return {
+      energy: Number(energy.toFixed(3)),
+      counts,
+    };
+  });
 }
 
 export default function LowEnergySpectrumChart({
@@ -133,18 +100,8 @@ export default function LowEnergySpectrumChart({
 
   const fullSpectrum = useMemo(
     () =>
-      generateSpectrum(
-        peakEnergy,
-        safeMaxEnergy,
-        peakHeight,
-        safePeakWidth
-      ),
-    [
-      peakEnergy,
-      safeMaxEnergy,
-      peakHeight,
-      safePeakWidth,
-    ]
+      generateSpectrum(peakEnergy, safeMaxEnergy, peakHeight, safePeakWidth),
+    [peakEnergy, safeMaxEnergy, peakHeight, safePeakWidth],
   );
 
   const startStream = () => {
@@ -158,8 +115,7 @@ export default function LowEnergySpectrumChart({
     const currentElapsed = Math.min(
       safeDuration,
       elapsedBeforeRef.current +
-        (performance.now() - startedAtRef.current) /
-          1000
+        (performance.now() - startedAtRef.current) / 1000,
     );
 
     elapsedBeforeRef.current = currentElapsed;
@@ -174,8 +130,7 @@ export default function LowEnergySpectrumChart({
       const seconds = Math.min(
         safeDuration,
         elapsedBeforeRef.current +
-          (performance.now() - startedAtRef.current) /
-            1000
+          (performance.now() - startedAtRef.current) / 1000,
       );
 
       setElapsed(seconds);
@@ -188,40 +143,25 @@ export default function LowEnergySpectrumChart({
 
     tick();
 
-    const timer = window.setInterval(
-      tick,
-      Math.max(50, intervalMs)
-    );
+    const timer = window.setInterval(tick, Math.max(50, intervalMs));
 
     return () => window.clearInterval(timer);
   }, [streaming, intervalMs, safeDuration]);
 
-  const progress = Math.min(
-    1,
-    elapsed / safeDuration
-  );
+  const progress = Math.min(1, elapsed / safeDuration);
 
   // Reveal channels progressively from left to right.
   const visibleSpectrum = useMemo(() => {
-    const visibleCount = Math.floor(
-      progress * (fullSpectrum.length - 1)
-    );
+    const visibleCount = Math.floor(progress * (fullSpectrum.length - 1));
 
-    return fullSpectrum.slice(
-      0,
-      Math.max(1, visibleCount + 1)
-    );
+    return fullSpectrum.slice(0, Math.max(1, visibleCount + 1));
   }, [fullSpectrum, progress]);
 
   const scanEnergy = progress * safeMaxEnergy;
 
-  const completed =
-    elapsed >= safeDuration;
+  const completed = elapsed >= safeDuration;
 
-  const yMax = Math.max(
-    25,
-    Math.ceil((peakHeight * 1.3) / 25) * 25
-  );
+  const yMax = Math.max(25, Math.ceil((peakHeight * 1.3) / 25) * 25);
 
   return (
     <div
@@ -241,11 +181,7 @@ export default function LowEnergySpectrumChart({
 
         <button
           type="button"
-          onClick={
-            streaming
-              ? pauseStream
-              : startStream
-          }
+          onClick={streaming ? pauseStream : startStream}
           aria-pressed={streaming}
           className={`flex items-center gap-2 rounded-full border px-4 py-2 transition-colors ${
             streaming
@@ -259,9 +195,7 @@ export default function LowEnergySpectrumChart({
             )}
             <span
               className={`relative inline-flex h-2 w-2 rounded-full ${
-                streaming
-                  ? "bg-emerald-500"
-                  : "bg-white"
+                streaming ? "bg-emerald-500" : "bg-white"
               }`}
             />
           </span>
@@ -274,10 +208,7 @@ export default function LowEnergySpectrumChart({
 
       {/* Chart */}
       <div className="h-96 w-full">
-        <ResponsiveContainer
-          width="100%"
-          height="100%"
-        >
+        <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={visibleSpectrum}
             margin={{
@@ -338,13 +269,8 @@ export default function LowEnergySpectrumChart({
               labelStyle={{
                 color: "#94a3b8",
               }}
-              labelFormatter={(value) =>
-                `${Number(value).toFixed(2)} keV`
-              }
-              formatter={(value) => [
-                Number(value).toFixed(0),
-                "Counts",
-              ]}
+              labelFormatter={(value) => `${Number(value).toFixed(2)} keV`}
+              formatter={(value) => [Number(value).toFixed(0), "Counts"]}
             />
 
             {/* Photopeak marker */}

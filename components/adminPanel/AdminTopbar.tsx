@@ -1,11 +1,7 @@
-
 "use client";
 
 import { usePathname } from "next/navigation";
-import {
-  Menu,
-  ShieldCheck,
-} from "lucide-react";
+import { Menu, ShieldCheck } from "lucide-react";
 
 type AdminTopbarProps = {
   onMenuClick: () => void;
@@ -20,14 +16,10 @@ const pageNames: Record<string, string> = {
   "/admin/settings": "System Settings",
 };
 
-export default function AdminTopbar({
-  onMenuClick,
-}: AdminTopbarProps) {
+export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
   const pathname = usePathname();
 
-  const currentTitle =
-    pageNames[pathname] ??
-    "Administration";
+  const currentTitle = pageNames[pathname] ?? "Administration";
 
   return (
     <header className="sticky top-0 z-30 flex h-[72px] items-center justify-between border-b border-slate-800 bg-[#0a1729]/95 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
@@ -53,10 +45,7 @@ export default function AdminTopbar({
 
       <div className="flex items-center gap-3">
         <div className="hidden items-center gap-2 rounded-full border border-slate-700 bg-slate-800/50 px-3 py-2 text-xs text-slate-300 sm:flex">
-          <ShieldCheck
-            size={15}
-            className="text-emerald-400"
-          />
+          <ShieldCheck size={15} className="text-emerald-400" />
           Admin Console
         </div>
 

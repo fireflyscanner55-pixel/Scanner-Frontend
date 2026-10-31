@@ -16,9 +16,7 @@ type CombinedAreaChartProps = {
   data: CombinedChartPoint[];
 };
 
-export default function CombinedAreaChart({
-  data,
-}: CombinedAreaChartProps) {
+export default function CombinedAreaChart({ data }: CombinedAreaChartProps) {
   return (
     <section
       className="
@@ -46,61 +44,19 @@ export default function CombinedAreaChart({
             }}
           >
             <defs>
-              <linearGradient
-                id="alphaArea"
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="1"
-              >
-                <stop
-                  offset="0%"
-                  stopColor="#3b82c4"
-                  stopOpacity={0.9}
-                />
-                <stop
-                  offset="100%"
-                  stopColor="#3b82c4"
-                  stopOpacity={0.7}
-                />
+              <linearGradient id="alphaArea" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#3b82c4" stopOpacity={0.9} />
+                <stop offset="100%" stopColor="#3b82c4" stopOpacity={0.7} />
               </linearGradient>
 
-              <linearGradient
-                id="betaArea"
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="1"
-              >
-                <stop
-                  offset="0%"
-                  stopColor="#e33131"
-                  stopOpacity={0.9}
-                />
-                <stop
-                  offset="100%"
-                  stopColor="#e33131"
-                  stopOpacity={0.75}
-                />
+              <linearGradient id="betaArea" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#e33131" stopOpacity={0.9} />
+                <stop offset="100%" stopColor="#e33131" stopOpacity={0.75} />
               </linearGradient>
 
-              <linearGradient
-                id="gammaArea"
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="1"
-              >
-                <stop
-                  offset="0%"
-                  stopColor="#16a02b"
-                  stopOpacity={0.9}
-                />
-                <stop
-                  offset="100%"
-                  stopColor="#16a02b"
-                  stopOpacity={0.75}
-                />
+              <linearGradient id="gammaArea" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#16a02b" stopOpacity={0.9} />
+                <stop offset="100%" stopColor="#16a02b" stopOpacity={0.75} />
               </linearGradient>
             </defs>
 
@@ -111,10 +67,7 @@ export default function CombinedAreaChart({
               tickLine={false}
             />
 
-            <YAxis
-              hide
-              domain={[0, "dataMax"]}
-            />
+            <YAxis hide domain={[0, "dataMax"]} />
 
             <Tooltip
               contentStyle={{

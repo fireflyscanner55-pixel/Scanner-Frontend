@@ -7,7 +7,9 @@ export const dynamic = "force-dynamic";
 
 async function requireSession() {
   const session = await getCurrentSession();
-  return session ? null : NextResponse.json({ message: "Unauthorized." }, { status: 401 });
+  return session
+    ? null
+    : NextResponse.json({ message: "Unauthorized." }, { status: 401 });
 }
 
 export async function GET() {
@@ -24,11 +26,17 @@ export async function PATCH(request: Request) {
   try {
     const { otpEnabled } = await request.json();
     if (typeof otpEnabled !== "boolean") {
-      return NextResponse.json({ message: "otpEnabled must be a boolean." }, { status: 400 });
+      return NextResponse.json(
+        { message: "otpEnabled must be a boolean." },
+        { status: 400 },
+      );
     }
 
     return NextResponse.json(await saveAuthSettings({ otpEnabled }));
   } catch {
-    return NextResponse.json({ message: "Unable to update OTP settings." }, { status: 400 });
+    return NextResponse.json(
+      { message: "Unable to update OTP settings." },
+      { status: 400 },
+    );
   }
 }

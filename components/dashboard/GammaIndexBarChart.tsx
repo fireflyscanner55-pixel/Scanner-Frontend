@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useId } from "react";
@@ -37,10 +36,7 @@ export default function GammaIndexBarChart({
       className={`w-full rounded-xl border border-slate-200 bg-white p-5 shadow-sm ${className}`}
       aria-labelledby={titleId}
     >
-      <h2
-        id={titleId}
-        className="mb-1 text-lg font-semibold text-slate-900"
-      >
+      <h2 id={titleId} className="mb-1 text-lg font-semibold text-slate-900">
         {title}
       </h2>
 
@@ -100,16 +96,12 @@ export default function GammaIndexBarChart({
 
             <Tooltip
               cursor={{ fill: "#f1f5f9" }}
-              formatter={(value) => [
-                Number(value).toFixed(2),
-                "Gamma Index",
-              ]}
+              formatter={(value) => [Number(value).toFixed(2), "Gamma Index"]}
               contentStyle={{
                 backgroundColor: "#fff",
                 border: "1px solid #e2e8f0",
                 borderRadius: "8px",
-                boxShadow:
-                  "0 4px 12px rgba(0,0,0,0.08)",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
               }}
             />
 

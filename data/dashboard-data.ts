@@ -1,13 +1,13 @@
 import type {
-    CombinedChartPoint,
-    LineChartPoint,
-    ResultCardData,
-    TestResult,
-    MonthlyBarChartPoint,
-    MonthlyAreaChartPoint,
-    RadarChartPoint,
-    PolarChartPoint,
-    ImpressionData,
+  CombinedChartPoint,
+  LineChartPoint,
+  ResultCardData,
+  TestResult,
+  MonthlyBarChartPoint,
+  MonthlyAreaChartPoint,
+  RadarChartPoint,
+  PolarChartPoint,
+  ImpressionData,
 } from "@/types/dashboard";
 
 export const resultCards: ResultCardData[] = [
@@ -346,13 +346,12 @@ export const impressionData: ImpressionData = {
       title: "Radioisotope Analysis",
       description:
         "The analysis includes observations relating to Cesium, Iridium, Uranium, Plutonium, Americium and Polonium based on the configured test parameters.",
-        
-      },
+    },
     {
       id: "recommended-action",
       title: "Recommended Action",
       description:
-        "Further technical review is recommended where values exceed the configured thresholds or where unstable isotope conditions are identified.",       
-      },
+        "Further technical review is recommended where values exceed the configured thresholds or where unstable isotope conditions are identified.",
+    },
   ],
 };

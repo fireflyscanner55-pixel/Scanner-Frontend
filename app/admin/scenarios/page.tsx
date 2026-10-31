@@ -1,12 +1,6 @@
-
 "use client";
 
-import {
-  useEffect,
-  useMemo,
-  useState,
-  type SubmitEvent,
-} from "react";
+import { useEffect, useMemo, useState, type SubmitEvent } from "react";
 import {
   Activity,
   Atom,
@@ -39,21 +33,11 @@ import { ISOTOPE_CATALOG } from "@/data/isotopeCatalog";
 
 import type { UserImpression } from "@/types/radioanalysis";
 
-
 type ScenarioType = "positive" | "negative";
 
-type RangeKey =
-  | "cps"
-  | "doseRate"
-  | "temperature"
-  | "pressure";
+type RangeKey = "cps" | "doseRate" | "temperature" | "pressure";
 
-type SectionId =
-  | "radiation"
-  | "device"
-  | "isotopes"
-  | "video"
-  | "impression";
+type SectionId = "radiation" | "device" | "isotopes" | "video" | "impression";
 
 const sectionStyle =
   "overflow-hidden rounded-2xl border border-slate-800 bg-[#101f33]";
@@ -79,14 +63,14 @@ function range(
   target: number,
   min: number,
   max: number,
-  unit: string
+  unit: string,
 ): SimulationRange {
   return { target, min, max, unit };
 }
 
 function createDefaults(
   userId: string,
-  type: ScenarioType
+  type: ScenarioType,
 ): UserScenarioConfig {
   const preset = DEFAULTS[type];
 
@@ -102,17 +86,12 @@ function createDefaults(
     scanDurationSeconds: 10,
     videoEnabled: type === "positive",
     videoUrl: "/assets/Timeline%201.mp4",
-    cps: range(
-      preset.cps[0],
-      preset.cps[1],
-      preset.cps[2],
-      "CPS"
-    ),
+    cps: range(preset.cps[0], preset.cps[1], preset.cps[2], "CPS"),
     doseRate: range(
       preset.doseRate[0],
       preset.doseRate[1],
       preset.doseRate[2],
-      "µSv/h"
+      "µSv/h",
     ),
     battery: {
       initialLevel: 86,
@@ -126,26 +105,23 @@ function createDefaults(
     impression: [
       {
         title:
-        type === "positive"
-        ? "Radiation Activity Detected"
-        : "No Significant Radiation Detected",
+          type === "positive"
+            ? "Radiation Activity Detected"
+            : "No Significant Radiation Detected",
         description:
-        type === "positive"
-        ? "The simulated scan indicates elevated radiation activity"
-        : "The simulated scan indicates no significant radiation anomaly",
+          type === "positive"
+            ? "The simulated scan indicates elevated radiation activity"
+            : "The simulated scan indicates no significant radiation anomaly",
       },
     ],
     updatedAt: new Date().toISOString(),
   };
 }
 
-
-function normalizeBattery(
-  value: unknown
-): BatteryConfig {
+function normalizeBattery(value: unknown): BatteryConfig {
   const input =
     value && typeof value === "object"
-      ? value as Record<string, unknown>
+      ? (value as Record<string, unknown>)
       : {};
 
   const rawLevel =
@@ -160,37 +136,26 @@ function normalizeBattery(
       ? Math.max(0, Math.min(100, Math.round(rawLevel)))
       : 86,
     drainMode:
-      input.drainMode === "slow" ||
-      input.drainMode === "fast"
+      input.drainMode === "slow" || input.drainMode === "fast"
         ? input.drainMode
         : "normal",
     charging: input.charging === true,
   };
 }
 
-function normalizeImpressions(
-  value: unknown
-): UserImpression[] {
+function normalizeImpressions(value: unknown): UserImpression[] {
   if (Array.isArray(value)) {
     return value.map((entry) => ({
-      title:
-        typeof entry?.title === "string"
-          ? entry.title
-          : "",
+      title: typeof entry?.title === "string" ? entry.title : "",
       description:
-        typeof entry?.description === "string"
-          ? entry.description
-          : "",
+        typeof entry?.description === "string" ? entry.description : "",
     }));
   }
 
   if (value && typeof value === "object") {
     const old = value as Partial<UserImpression>;
 
-    if (
-      typeof old.title === "string" ||
-      typeof old.description === "string"
-    ) {
+    if (typeof old.title === "string" || typeof old.description === "string") {
       return [
         {
           title: old.title ?? "",
@@ -203,22 +168,17 @@ function normalizeImpressions(
   return [];
 }
 
-
-
 const isotopeCatalogById = new Map(
-  ISOTOPE_CATALOG.map((entry) => [entry.id, entry])
+  ISOTOPE_CATALOG.map((entry) => [entry.id, entry]),
 );
 
 function enrichIsotopes(
-  isotopes: UserScenarioIsotope[]
+  isotopes: UserScenarioIsotope[],
 ): UserScenarioIsotope[] {
   return isotopes.map((isotope) => {
-    const catalogEntry =
-      isotopeCatalogById.get(isotope.id);
+    const catalogEntry = isotopeCatalogById.get(isotope.id);
 
-    const energy =
-      isotope.energy?.trim() ||
-      catalogEntry?.energy?.trim();
+    const energy = isotope.energy?.trim() || catalogEntry?.energy?.trim();
 
     return {
       ...isotope,
@@ -227,15 +187,12 @@ function enrichIsotopes(
   });
 }
 
-
 function normalizeScenario(
   source: Partial<UserScenarioConfig>,
-  userId: string
+  userId: string,
 ): UserScenarioConfig {
   const type: ScenarioType =
-    source.scenarioType === "negative"
-      ? "negative"
-      : "positive";
+    source.scenarioType === "negative" ? "negative" : "positive";
 
   const defaults = createDefaults(userId, type);
 
@@ -247,16 +204,15 @@ function normalizeScenario(
     cps: source.cps ?? defaults.cps,
     doseRate: source.doseRate ?? defaults.doseRate,
     battery: normalizeBattery(source.battery),
-    temperature:
-      source.temperature ?? defaults.temperature,
+    temperature: source.temperature ?? defaults.temperature,
     pressure: source.pressure ?? defaults.pressure,
     isotopes: Array.isArray(source.isotopes)
       ? enrichIsotopes(source.isotopes)
       : [],
     impression:
-    source.impression == null
-    ? defaults.impression
-    : normalizeImpressions(source.impression),
+      source.impression == null
+        ? defaults.impression
+        : normalizeImpressions(source.impression),
   };
 }
 
@@ -269,9 +225,7 @@ function Field({
 }) {
   return (
     <label className="block min-w-0 space-y-1.5">
-      <span className="text-xs text-slate-400">
-        {label}
-      </span>
+      <span className="text-xs text-slate-400">{label}</span>
       {children}
     </label>
   );
@@ -286,10 +240,7 @@ function RangeEditor({
   value: SimulationRange;
   onChange: (next: SimulationRange) => void;
 }) {
-  const edit = (
-    field: "target" | "min" | "max",
-    text: string
-  ) =>
+  const edit = (field: "target" | "min" | "max", text: string) =>
     onChange({
       ...value,
       [field]: Number(text),
@@ -298,45 +249,36 @@ function RangeEditor({
   return (
     <div className="rounded-xl border border-slate-800 bg-[#0a1729] p-4">
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-semibold">
-          {label}
-        </h3>
-        <span className="text-xs text-slate-400">
-          {value.unit}
-        </span>
+        <h3 className="text-sm font-semibold">{label}</h3>
+        <span className="text-xs text-slate-400">{value.unit}</span>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
-        {(["target", "min", "max"] as const).map(
-          (field) => (
-            <Field
-              key={field}
-              label={
-                field === "target"
-                  ? "Target"
-                  : field === "min"
-                    ? "Minimum"
-                    : "Maximum"
-              }
-            >
-              <input
-                type="number"
-                step="any"
-                required
-                value={value[field]}
-                onChange={(event) =>
-                  edit(field, event.target.value)
-                }
-                className={inputStyle}
-              />
-            </Field>
-          )
-        )}
+        {(["target", "min", "max"] as const).map((field) => (
+          <Field
+            key={field}
+            label={
+              field === "target"
+                ? "Target"
+                : field === "min"
+                  ? "Minimum"
+                  : "Maximum"
+            }
+          >
+            <input
+              type="number"
+              step="any"
+              required
+              value={value[field]}
+              onChange={(event) => edit(field, event.target.value)}
+              className={inputStyle}
+            />
+          </Field>
+        ))}
       </div>
     </div>
   );
 }
-
 
 function BatteryEditor({
   value,
@@ -349,9 +291,7 @@ function BatteryEditor({
     <div className="rounded-xl border border-slate-800 bg-[#0a1729] p-4">
       <div className="mb-4 flex items-center gap-2">
         <Battery size={18} className="text-emerald-400" />
-        <h3 className="text-sm font-semibold">
-          Battery Configuration
-        </h3>
+        <h3 className="text-sm font-semibold">Battery Configuration</h3>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -380,20 +320,13 @@ function BatteryEditor({
             onChange={(event) =>
               onChange({
                 ...value,
-                drainMode: event.target.value as
-                  BatteryConfig["drainMode"],
+                drainMode: event.target.value as BatteryConfig["drainMode"],
               })
             }
           >
-            <option value="slow">
-              Power Saver — 1% / 10 min
-            </option>
-            <option value="normal">
-              Normal — 1% / 5 min
-            </option>
-            <option value="fast">
-              High Performance — 1% / 2 min
-            </option>
+            <option value="slow">Power Saver — 1% / 10 min</option>
+            <option value="normal">Normal — 1% / 5 min</option>
+            <option value="fast">High Performance — 1% / 2 min</option>
           </select>
         </Field>
       </div>
@@ -414,13 +347,12 @@ function BatteryEditor({
       </label>
 
       <p className="mt-3 text-xs text-slate-500">
-        Battery decreases according to simulation runtime.
-        Charging maintains the initial percentage.
+        Battery decreases according to simulation runtime. Charging maintains
+        the initial percentage.
       </p>
     </div>
   );
 }
-
 
 function Section({
   id,
@@ -453,12 +385,8 @@ function Section({
         </div>
 
         <div className="min-w-0 flex-1">
-          <h2 className="text-sm font-semibold sm:text-base">
-            {title}
-          </h2>
-          <p className="mt-1 text-xs text-slate-500">
-            {description}
-          </p>
+          <h2 className="text-sm font-semibold sm:text-base">{title}</h2>
+          <p className="mt-1 text-xs text-slate-500">{description}</p>
         </div>
 
         {expanded ? (
@@ -482,49 +410,44 @@ function Section({
 
 export default function AdminScenariosPage() {
   const [users, setUsers] = useState<RadioUser[]>([]);
-  const [scenarios, setScenarios] =
-    useState<UserScenarioConfig[]>([]);
+  const [scenarios, setScenarios] = useState<UserScenarioConfig[]>([]);
 
-  const [selectedUserId, setSelectedUserId] =
-    useState("");
+  const [selectedUserId, setSelectedUserId] = useState("");
 
-  const [config, setConfig] =
-    useState<UserScenarioConfig | null>(null);
+  const [config, setConfig] = useState<UserScenarioConfig | null>(null);
 
-  const [savedConfig, setSavedConfig] =
-    useState<UserScenarioConfig | null>(null);
+  const [savedConfig, setSavedConfig] = useState<UserScenarioConfig | null>(
+    null,
+  );
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const [expanded, setExpanded] =
-    useState<SectionId[]>([
-      "radiation",
-      "device",
-    ]);
+  const [expanded, setExpanded] = useState<SectionId[]>([
+    "radiation",
+    "device",
+  ]);
 
   useEffect(() => {
     const controller = new AbortController();
 
     const load = async () => {
       try {
-        const [userResponse, scenarioResponse] =
-          await Promise.all([
-            fetch("/api/admin/users", {
-              cache: "no-store",
-              signal: controller.signal,
-            }),
-            fetch("/api/admin/scenarios", {
-              cache: "no-store",
-              signal: controller.signal,
-            }),
-          ]);
+        const [userResponse, scenarioResponse] = await Promise.all([
+          fetch("/api/admin/users", {
+            cache: "no-store",
+            signal: controller.signal,
+          }),
+          fetch("/api/admin/scenarios", {
+            cache: "no-store",
+            signal: controller.signal,
+          }),
+        ]);
 
         const userPayload = await userResponse.json();
-        const scenarioPayload =
-          await scenarioResponse.json();
+        const scenarioPayload = await scenarioResponse.json();
 
         if (!userResponse.ok || !scenarioResponse.ok) {
           throw new Error("Unable to load admin configuration");
@@ -532,17 +455,13 @@ export default function AdminScenariosPage() {
 
         const userList = Array.isArray(userPayload)
           ? userPayload
-          : userPayload.users ?? userPayload.data;
+          : (userPayload.users ?? userPayload.data);
 
         const scenarioList = Array.isArray(scenarioPayload)
           ? scenarioPayload
-          : scenarioPayload.scenarios ??
-            scenarioPayload.data;
+          : (scenarioPayload.scenarios ?? scenarioPayload.data);
 
-        if (
-          !Array.isArray(userList) ||
-          !Array.isArray(scenarioList)
-        ) {
+        if (!Array.isArray(userList) || !Array.isArray(scenarioList)) {
           throw new Error("Unexpected admin API response");
         }
 
@@ -551,9 +470,7 @@ export default function AdminScenariosPage() {
       } catch (cause) {
         if (!controller.signal.aborted) {
           setError(
-            cause instanceof Error
-              ? cause.message
-              : "Unable to load scenarios"
+            cause instanceof Error ? cause.message : "Unable to load scenarios",
           );
         }
       } finally {
@@ -569,34 +486,24 @@ export default function AdminScenariosPage() {
   }, []);
 
   const activeUsers = useMemo(
-    () =>
-      users.filter(
-        (user) =>
-          user.role === "user" && user.active
-      ),
-    [users]
+    () => users.filter((user) => user.role === "user" && user.active),
+    [users],
   );
 
   // Derive the selected form from fetched records.
   // Avoid a second API request on every user change.
   const selectedRecord = useMemo(
     () =>
-      scenarios.find(
-        (scenario) =>
-          String(scenario.userId) === selectedUserId
-      ),
-    [scenarios, selectedUserId]
+      scenarios.find((scenario) => String(scenario.userId) === selectedUserId),
+    [scenarios, selectedUserId],
   );
 
   const currentConfig = useMemo(
     () =>
       selectedUserId
-        ? normalizeScenario(
-            selectedRecord ?? {},
-            selectedUserId
-          )
+        ? normalizeScenario(selectedRecord ?? {}, selectedUserId)
         : null,
-    [selectedRecord, selectedUserId]
+    [selectedRecord, selectedUserId],
   );
 
   const displayedConfig = config ?? currentConfig;
@@ -610,9 +517,7 @@ export default function AdminScenariosPage() {
   };
 
   const editConfig = (
-    updater: (
-      previous: UserScenarioConfig
-    ) => UserScenarioConfig
+    updater: (previous: UserScenarioConfig) => UserScenarioConfig,
   ) => {
     if (!displayedConfig) return;
     setConfig(updater(displayedConfig));
@@ -625,10 +530,7 @@ export default function AdminScenariosPage() {
         return previous;
       }
 
-      const defaults = createDefaults(
-        previous.userId,
-        type
-      );
+      const defaults = createDefaults(previous.userId, type);
 
       return {
         ...previous,
@@ -642,10 +544,7 @@ export default function AdminScenariosPage() {
     });
   };
 
-  const updateRange = (
-    field: RangeKey,
-    value: SimulationRange
-  ) =>
+  const updateRange = (field: RangeKey, value: SimulationRange) =>
     editConfig((previous) => ({
       ...previous,
       [field]: value,
@@ -655,148 +554,121 @@ export default function AdminScenariosPage() {
     setExpanded((previous) =>
       previous.includes(id)
         ? previous.filter((item) => item !== id)
-        : [...previous, id]
+        : [...previous, id],
     );
   };
 
-  
-const [isotopeSearch, setIsotopeSearch] = useState("");
+  const [isotopeSearch, setIsotopeSearch] = useState("");
 
-const filteredIsotopes = useMemo(() => {
-  const query = isotopeSearch.trim().toLowerCase();
+  const filteredIsotopes = useMemo(() => {
+    const query = isotopeSearch.trim().toLowerCase();
 
-  if (!query) return ISOTOPE_CATALOG;
+    if (!query) return ISOTOPE_CATALOG;
 
-  return ISOTOPE_CATALOG.filter((isotope) =>
-    `${isotope.name} ${isotope.symbol} ${isotope.description}`
-      .toLowerCase()
-      .includes(query)
-  );
-}, [isotopeSearch]);
-
-const toggleIsotope = (id: string) => {
-  const catalogEntry = ISOTOPE_CATALOG.find(
-    (item) => item.id === id
-  );
-
-  if (!catalogEntry) return;
-
-  editConfig((previous) => {
-    const alreadySelected = previous.isotopes.some(
-      (item) => item.id === id
+    return ISOTOPE_CATALOG.filter((isotope) =>
+      `${isotope.name} ${isotope.symbol} ${isotope.description}`
+        .toLowerCase()
+        .includes(query),
     );
+  }, [isotopeSearch]);
 
-    if (alreadySelected) {
+  const toggleIsotope = (id: string) => {
+    const catalogEntry = ISOTOPE_CATALOG.find((item) => item.id === id);
+
+    if (!catalogEntry) return;
+
+    editConfig((previous) => {
+      const alreadySelected = previous.isotopes.some((item) => item.id === id);
+
+      if (alreadySelected) {
+        return {
+          ...previous,
+          isotopes: previous.isotopes.filter((item) => item.id !== id),
+        };
+      }
+
       return {
         ...previous,
-        isotopes: previous.isotopes.filter(
-          (item) => item.id !== id
-        ),
+        isotopes: [
+          ...previous.isotopes,
+          {
+            id: catalogEntry.id,
+            name: catalogEntry.name,
+            symbol: catalogEntry.symbol,
+            energy: catalogEntry.energy,
+            description: catalogEntry.description,
+            status: catalogEntry.naturallyStable ? "stable" : "unstable",
+          },
+        ],
       };
-    }
+    });
+  };
 
-    return {
-      ...previous,
-      isotopes: [
-        ...previous.isotopes,
-        {
-          id: catalogEntry.id,
-          name: catalogEntry.name,
-          symbol: catalogEntry.symbol,
-          energy: catalogEntry.energy,
-          description: catalogEntry.description,
-          status: catalogEntry.naturallyStable
-            ? "stable"
-            : "unstable",
-        },
-      ],
-    };
-  });
-};
-
-const changeIsotopeStatus = (
-  id: string,
-  status: UserScenarioIsotope["status"]
-) => {
-  editConfig((previous) => ({
-    ...previous,
-    isotopes: previous.isotopes.map((item) =>
-      item.id === id ? { ...item, status } : item
-    ),
-  }));
-};
-
-
-const addImpression = () => {
-  editConfig((previous) => ({
-    ...previous,
-    impression: [
-      ...previous.impression,
-      { title: "", description: "" },
-    ],
-  }));
-};
-
-const updateImpression = (
-  index: number,
-  field: "title" | "description",
-  value: string
-) => {
-  editConfig((previous) => ({
-    ...previous,
-    impression: previous.impression.map(
-      (item, currentIndex) =>
-        currentIndex === index
-          ? { ...item, [field]: value }
-          : item
-    ),
-  }));
-};
-
-const removeImpression = (index: number) => {
-  editConfig((previous) => ({
-    ...previous,
-    impression: previous.impression.filter(
-      (_, currentIndex) => currentIndex !== index
-    ),
-  }));
-};
-
-const moveImpression = (
-  index: number,
-  direction: -1 | 1
-) => {
-  editConfig((previous) => {
-    const items = [...previous.impression];
-    const target = index + direction;
-
-    if (target < 0 || target >= items.length) {
-      return previous;
-    }
-
-    [items[index], items[target]] = [
-      items[target],
-      items[index],
-    ];
-
-    return {
-      ...previous,
-      impression: items,
-    };
-  });
-};
-
-  const handleSave = async (
-    event: SubmitEvent<HTMLFormElement>
+  const changeIsotopeStatus = (
+    id: string,
+    status: UserScenarioIsotope["status"],
   ) => {
+    editConfig((previous) => ({
+      ...previous,
+      isotopes: previous.isotopes.map((item) =>
+        item.id === id ? { ...item, status } : item,
+      ),
+    }));
+  };
+
+  const addImpression = () => {
+    editConfig((previous) => ({
+      ...previous,
+      impression: [...previous.impression, { title: "", description: "" }],
+    }));
+  };
+
+  const updateImpression = (
+    index: number,
+    field: "title" | "description",
+    value: string,
+  ) => {
+    editConfig((previous) => ({
+      ...previous,
+      impression: previous.impression.map((item, currentIndex) =>
+        currentIndex === index ? { ...item, [field]: value } : item,
+      ),
+    }));
+  };
+
+  const removeImpression = (index: number) => {
+    editConfig((previous) => ({
+      ...previous,
+      impression: previous.impression.filter(
+        (_, currentIndex) => currentIndex !== index,
+      ),
+    }));
+  };
+
+  const moveImpression = (index: number, direction: -1 | 1) => {
+    editConfig((previous) => {
+      const items = [...previous.impression];
+      const target = index + direction;
+
+      if (target < 0 || target >= items.length) {
+        return previous;
+      }
+
+      [items[index], items[target]] = [items[target], items[index]];
+
+      return {
+        ...previous,
+        impression: items,
+      };
+    });
+  };
+
+  const handleSave = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!displayedConfig || !selectedUserId) return;
 
-    const fields: RangeKey[] = [
-      "cps",
-      "doseRate",
-    ];
+    const fields: RangeKey[] = ["cps", "doseRate"];
 
     for (const field of fields) {
       const item = displayedConfig[field];
@@ -809,7 +681,7 @@ const moveImpression = (
         item.target > item.max
       ) {
         setError(
-          `Invalid ${field} range. Minimum ≤ Target ≤ Maximum is required.`
+          `Invalid ${field} range. Minimum ≤ Target ≤ Maximum is required.`,
         );
         return;
       }
@@ -817,12 +689,14 @@ const moveImpression = (
 
     const battery = displayedConfig.battery;
     if (
-      !Number.isInteger(battery.initialLevel) || battery.initialLevel < 0 || battery.initialLevel > 100 || 
+      !Number.isInteger(battery.initialLevel) ||
+      battery.initialLevel < 0 ||
+      battery.initialLevel > 100 ||
       !["slow", "normal", "fast"].includes(battery.drainMode)
     ) {
       setError("Invalid battery configuration");
-        return;
-}
+      return;
+    }
 
     setSaving(true);
     setError("");
@@ -842,60 +716,50 @@ const moveImpression = (
       };
 
       const response = await fetch(
-        `/api/admin/scenarios/${encodeURIComponent(
-          selectedUserId
-        )}`,
+        `/api/admin/scenarios/${encodeURIComponent(selectedUserId)}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(scenarioInput),
-        }
+        },
       );
-      
-      const contentType =response.headers.get("content-type") ?? "";
-      
+
+      const contentType = response.headers.get("content-type") ?? "";
+
       const payload = contentType.includes("application/json")
-      ? await response.json().catch(() => null)
-      : null;
+        ? await response.json().catch(() => null)
+        : null;
       if (!response.ok) {
         throw new Error(
           payload?.message ??
-          `Unable to save scenario (${response.status} ${response.statusText})`
+            `Unable to save scenario (${response.status} ${response.statusText})`,
         );
       }
-      
+
       if (!payload || payload.success === false) {
-  throw new Error(
-    payload?.message ??
-      "The server did not confirm that the scenario was saved."
-  );
-}
+        throw new Error(
+          payload?.message ??
+            "The server did not confirm that the scenario was saved.",
+        );
+      }
 
-const savedData = payload.data ?? payload;
+      const savedData = payload.data ?? payload;
 
-if (
-  !savedData ||
-  typeof savedData !== "object" ||
-  !savedData.scenarioType ||
-  !Array.isArray(savedData.isotopes)
-) {
-  throw new Error(
-    "The server returned an invalid saved scenario."
-  );
-}
-      
-      const saved = normalizeScenario(
-        savedData,
-        selectedUserId
-      );
+      if (
+        !savedData ||
+        typeof savedData !== "object" ||
+        !savedData.scenarioType ||
+        !Array.isArray(savedData.isotopes)
+      ) {
+        throw new Error("The server returned an invalid saved scenario.");
+      }
+
+      const saved = normalizeScenario(savedData, selectedUserId);
 
       setScenarios((previous) => [
-        ...previous.filter(
-          (item) =>
-            String(item.userId) !== selectedUserId
-        ),
+        ...previous.filter((item) => String(item.userId) !== selectedUserId),
         saved,
       ]);
 
@@ -904,9 +768,7 @@ if (
       setSuccess("Scenario configuration saved.");
     } catch (cause) {
       setError(
-        cause instanceof Error
-          ? cause.message
-          : "Unable to save scenario"
+        cause instanceof Error ? cause.message : "Unable to save scenario",
       );
     } finally {
       setSaving(false);
@@ -919,15 +781,11 @@ if (
     setSuccess("");
   };
 
-  const selectedUser = activeUsers.find(
-    (user) => user.id === selectedUserId
-  );
+  const selectedUser = activeUsers.find((user) => user.id === selectedUserId);
 
-  const formConfig =
-    config ?? savedConfig ?? currentConfig;
+  const formConfig = config ?? savedConfig ?? currentConfig;
 
-  const isOpen = (id: SectionId) =>
-    expanded.includes(id);
+  const isOpen = (id: SectionId) => expanded.includes(id);
 
   if (loading) {
     return (
@@ -977,9 +835,7 @@ if (
           <Field label="Assign configuration to user">
             <select
               value={selectedUserId}
-              onChange={(event) =>
-                chooseUser(event.target.value)
-              }
+              onChange={(event) => chooseUser(event.target.value)}
               className={inputStyle}
             >
               <option value="">Select a user</option>
@@ -1001,10 +857,7 @@ if (
 
       {!formConfig ? (
         <div className={`${sectionStyle} p-12 text-center`}>
-          <Settings2
-            className="mx-auto mb-3 text-slate-500"
-            size={32}
-          />
+          <Settings2 className="mx-auto mb-3 text-slate-500" size={32} />
           <p className="text-slate-300">
             Select a user to configure their scenario.
           </p>
@@ -1013,53 +866,40 @@ if (
         <form onSubmit={handleSave} className="space-y-4">
           {/* Scenario selector */}
           <section className={`${sectionStyle} p-5`}>
-            <h2 className="mb-4 font-semibold">
-              Scenario Type
-            </h2>
+            <h2 className="mb-4 font-semibold">Scenario Type</h2>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              {(["positive", "negative"] as const).map(
-                (type) => {
-                  const active =
-                    formConfig.scenarioType === type;
+              {(["positive", "negative"] as const).map((type) => {
+                const active = formConfig.scenarioType === type;
 
-                  return (
-                    <button
-                      key={type}
-                      type="button"
-                      onClick={() => changeType(type)}
-                      aria-pressed={active}
-                      className={`rounded-xl border p-4 text-left transition ${
-                        active
-                          ? type === "positive"
-                            ? "border-amber-500 bg-amber-500/10"
-                            : "border-purple-500 bg-purple-500/10"
-                          : "border-slate-700 bg-slate-950/40 hover:border-slate-500"
-                      }`}
-                    >
-                      {type === "positive" ? (
-                        <Radiation
-                          size={23}
-                          className="mb-3 text-amber-400"
-                        />
-                      ) : (
-                        <ShieldCheck
-                          size={23}
-                          className="mb-3 text-purple-400"
-                        />
-                      )}
-                      <p className="font-semibold capitalize">
-                        {type}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-400">
-                        {type === "positive"
-                          ? "Elevated radiation activity"
-                          : "No significant radiation activity"}
-                      </p>
-                    </button>
-                  );
-                }
-              )}
+                return (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => changeType(type)}
+                    aria-pressed={active}
+                    className={`rounded-xl border p-4 text-left transition ${
+                      active
+                        ? type === "positive"
+                          ? "border-amber-500 bg-amber-500/10"
+                          : "border-purple-500 bg-purple-500/10"
+                        : "border-slate-700 bg-slate-950/40 hover:border-slate-500"
+                    }`}
+                  >
+                    {type === "positive" ? (
+                      <Radiation size={23} className="mb-3 text-amber-400" />
+                    ) : (
+                      <ShieldCheck size={23} className="mb-3 text-purple-400" />
+                    )}
+                    <p className="font-semibold capitalize">{type}</p>
+                    <p className="mt-1 text-xs text-slate-400">
+                      {type === "positive"
+                        ? "Elevated radiation activity"
+                        : "No significant radiation activity"}
+                    </p>
+                  </button>
+                );
+              })}
             </div>
 
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -1087,9 +927,7 @@ if (
                   onChange={(event) =>
                     editConfig((previous) => ({
                       ...previous,
-                      scanDurationSeconds: Number(
-                        event.target.value
-                      ),
+                      scanDurationSeconds: Number(event.target.value),
                     }))
                   }
                 />
@@ -1126,10 +964,7 @@ if (
                   : "300 seconds"}
               </span>
               <span className="rounded-lg bg-slate-800 px-3 py-2 text-xs text-slate-300">
-                Rings:{" "}
-                {formConfig.scenarioType === "positive"
-                  ? "12"
-                  : "0"}
+                Rings: {formConfig.scenarioType === "positive" ? "12" : "0"}
               </span>
             </div>
           </section>
@@ -1147,16 +982,12 @@ if (
               <RangeEditor
                 label="Count Rate"
                 value={formConfig.cps}
-                onChange={(value) =>
-                  updateRange("cps", value)
-                }
+                onChange={(value) => updateRange("cps", value)}
               />
               <RangeEditor
                 label="Dose Rate"
                 value={formConfig.doseRate}
-                onChange={(value) =>
-                  updateRange("doseRate", value)
-                }
+                onChange={(value) => updateRange("doseRate", value)}
               />
             </div>
           </Section>
@@ -1192,202 +1023,196 @@ if (
                 </div>
               </Field>
 
-              
-<BatteryEditor
-  value={formConfig.battery}
-  onChange={(battery) =>
-    editConfig((previous) => ({
-      ...previous,
-      battery,
-    }))
-  }
-/>
+              <BatteryEditor
+                value={formConfig.battery}
+                onChange={(battery) =>
+                  editConfig((previous) => ({
+                    ...previous,
+                    battery,
+                  }))
+                }
+              />
             </div>
           </Section>
 
           {/* Isotopes */}
-          
-<Section
-  id="isotopes"
-  title="Radioisotope Configuration"
-  description="Select isotopes and configure their scenario status"
-  icon={Atom}
-  expanded={isOpen("isotopes")}
-  onToggle={() => toggleSection("isotopes")}
->
-  <div className="space-y-4">
-    {/* Header and Search */}
-    <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-      <div>
-        <h3 className="text-sm font-semibold text-white">
-          Isotope Library
-        </h3>
-        <p className="mt-1 text-xs text-slate-400">
-          Select the isotopes required for this scenario.
-        </p>
-      </div>
 
-      <span className="w-fit rounded-lg border border-blue-500/20 bg-blue-500/10 px-3 py-1.5 text-xs font-medium text-blue-400">
-        {formConfig.isotopes.length} Selected
-      </span>
-    </div>
-
-    <input
-      type="search"
-      placeholder="Search by isotope name or symbol..."
-      value={isotopeSearch}
-      onChange={(event) =>
-        setIsotopeSearch(event.target.value)
-      }
-      className={inputStyle}
-    />
-
-    {/* Isotope Catalog */}
-    <div className="max-h-[420px] overflow-y-auto rounded-xl border border-slate-800 bg-[#0a1729]">
-      {filteredIsotopes.map((isotope) => {
-        const selected = formConfig.isotopes.find(
-          (item) => item.id === isotope.id
-        );
-
-        return (
-          <div
-            key={isotope.id}
-            className={`border-b border-slate-800/70 px-4 py-3 last:border-b-0 ${
-              selected ? "bg-blue-500/[0.04]" : ""
-            }`}
+          <Section
+            id="isotopes"
+            title="Radioisotope Configuration"
+            description="Select isotopes and configure their scenario status"
+            icon={Atom}
+            expanded={isOpen("isotopes")}
+            onToggle={() => toggleSection("isotopes")}
           >
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="space-y-4">
+              {/* Header and Search */}
+              <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                <div>
+                  <h3 className="text-sm font-semibold text-white">
+                    Isotope Library
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-400">
+                    Select the isotopes required for this scenario.
+                  </p>
+                </div>
+
+                <span className="w-fit rounded-lg border border-blue-500/20 bg-blue-500/10 px-3 py-1.5 text-xs font-medium text-blue-400">
+                  {formConfig.isotopes.length} Selected
+                </span>
+              </div>
+
               <input
-                id={`isotope-${isotope.id}`}
-                type="checkbox"
-                checked={Boolean(selected)}
-                onChange={() =>
-                  toggleIsotope(isotope.id)
-                }
-                className="h-4 w-4 shrink-0 accent-blue-500"
+                type="search"
+                placeholder="Search by isotope name or symbol..."
+                value={isotopeSearch}
+                onChange={(event) => setIsotopeSearch(event.target.value)}
+                className={inputStyle}
               />
 
-              <label
-                htmlFor={`isotope-${isotope.id}`}
-                className="min-w-0 flex-1 cursor-pointer"
-              >
-                <span className="block text-sm font-medium text-slate-100">
-                  {isotope.name}
-                  <span className="ml-2 text-xs text-cyan-400">
-                    {isotope.symbol}
-                  </span>
-                </span>
+              {/* Isotope Catalog */}
+              <div className="max-h-[420px] overflow-y-auto rounded-xl border border-slate-800 bg-[#0a1729]">
+                {filteredIsotopes.map((isotope) => {
+                  const selected = formConfig.isotopes.find(
+                    (item) => item.id === isotope.id,
+                  );
 
-                <span className="mt-0.5 block text-xs text-slate-500">
-                  {isotope.energy}
-                </span>
+                  return (
+                    <div
+                      key={isotope.id}
+                      className={`border-b border-slate-800/70 px-4 py-3 last:border-b-0 ${
+                        selected ? "bg-blue-500/[0.04]" : ""
+                      }`}
+                    >
+                      <div className="flex flex-wrap items-center gap-3">
+                        <input
+                          id={`isotope-${isotope.id}`}
+                          type="checkbox"
+                          checked={Boolean(selected)}
+                          onChange={() => toggleIsotope(isotope.id)}
+                          className="h-4 w-4 shrink-0 accent-blue-500"
+                        />
 
-                <span className="mt-0.5 block text-xs text-slate-500">
-                  {isotope.description}
-                </span>
-              </label>
+                        <label
+                          htmlFor={`isotope-${isotope.id}`}
+                          className="min-w-0 flex-1 cursor-pointer"
+                        >
+                          <span className="block text-sm font-medium text-slate-100">
+                            {isotope.name}
+                            <span className="ml-2 text-xs text-cyan-400">
+                              {isotope.symbol}
+                            </span>
+                          </span>
 
-              <span
-                className={`rounded-md px-2 py-1 text-[10px] font-medium ${
-                  isotope.naturallyStable
-                    ? "bg-emerald-500/10 text-emerald-400"
-                    : "bg-amber-500/10 text-amber-400"
-                }`}
-              >
-                {isotope.naturallyStable
-                  ? "Stable nuclide"
-                  : "Radioactive nuclide"}
-              </span>
+                          <span className="mt-0.5 block text-xs text-slate-500">
+                            {isotope.energy}
+                          </span>
 
-              {selected && (
-                <select
-                  aria-label={`Scenario status for ${isotope.name}`}
-                  value={selected.status}
-                  onChange={(event) =>
-                    changeIsotopeStatus(
-                      isotope.id,
-                      event.target.value as
-                        UserScenarioIsotope["status"]
-                    )
-                  }
-                  className="h-9 w-32 rounded-lg border border-slate-700 bg-slate-900 px-2 text-xs text-white outline-none focus:border-blue-500"
-                >
-                  <option value="stable">Stable</option>
-                  <option value="unstable">Unstable</option>
-                </select>
+                          <span className="mt-0.5 block text-xs text-slate-500">
+                            {isotope.description}
+                          </span>
+                        </label>
+
+                        <span
+                          className={`rounded-md px-2 py-1 text-[10px] font-medium ${
+                            isotope.naturallyStable
+                              ? "bg-emerald-500/10 text-emerald-400"
+                              : "bg-amber-500/10 text-amber-400"
+                          }`}
+                        >
+                          {isotope.naturallyStable
+                            ? "Stable nuclide"
+                            : "Radioactive nuclide"}
+                        </span>
+
+                        {selected && (
+                          <select
+                            aria-label={`Scenario status for ${isotope.name}`}
+                            value={selected.status}
+                            onChange={(event) =>
+                              changeIsotopeStatus(
+                                isotope.id,
+                                event.target
+                                  .value as UserScenarioIsotope["status"],
+                              )
+                            }
+                            className="h-9 w-32 rounded-lg border border-slate-700 bg-slate-900 px-2 text-xs text-white outline-none focus:border-blue-500"
+                          >
+                            <option value="stable">Stable</option>
+                            <option value="unstable">Unstable</option>
+                          </select>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {filteredIsotopes.length === 0 && (
+                  <div className="p-8 text-center text-sm text-slate-500">
+                    No isotopes match your search.
+                  </div>
+                )}
+              </div>
+
+              {/* Selected Summary */}
+              {formConfig.isotopes.length > 0 && (
+                <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4">
+                  <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    Selected Isotopes
+                  </h4>
+
+                  <div className="flex flex-wrap gap-2">
+                    {formConfig.isotopes.map((isotope) => (
+                      <div
+                        key={isotope.id}
+                        className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2"
+                      >
+                        <span className="text-xs text-white">
+                          {isotope.symbol || isotope.name}
+                        </span>
+
+                        <span className="text-xs font-medium text-cyan-400">
+                          {isotope.energy}
+                        </span>
+
+                        <span
+                          className={
+                            isotope.status === "stable"
+                              ? "text-[10px] text-emerald-400"
+                              : "text-[10px] text-amber-400"
+                          }
+                        >
+                          {isotope.status}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            editConfig((previous) => ({
+                              ...previous,
+                              isotopes: previous.isotopes.filter(
+                                (item) => item.id !== isotope.id,
+                              ),
+                            }))
+                          }
+                          aria-label={`Remove ${isotope.name}`}
+                          className="text-slate-500 hover:text-red-400"
+                        >
+                          <X size={13} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
+
+              <p className="text-xs text-slate-500">
+                Catalog labels describe physical isotope stability. The selected
+                status is an admin-defined simulation classification and does
+                not change nuclear properties.
+              </p>
             </div>
-          </div>
-        );
-      })}
-
-      {filteredIsotopes.length === 0 && (
-        <div className="p-8 text-center text-sm text-slate-500">
-          No isotopes match your search.
-        </div>
-      )}
-    </div>
-
-    {/* Selected Summary */}
-    {formConfig.isotopes.length > 0 && (
-      <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4">
-        <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-          Selected Isotopes
-        </h4>
-
-        <div className="flex flex-wrap gap-2">
-          {formConfig.isotopes.map((isotope) => (
-            <div
-              key={isotope.id}
-              className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2"
-            >
-              <span className="text-xs text-white">
-                {isotope.symbol || isotope.name}
-              </span>
-
-              <span className="text-xs font-medium text-cyan-400">
-                {isotope.energy}
-              </span>
-
-              <span
-                className={
-                  isotope.status === "stable"
-                    ? "text-[10px] text-emerald-400"
-                    : "text-[10px] text-amber-400"
-                }
-              >
-                {isotope.status}
-              </span>
-
-              <button
-                type="button"
-                onClick={() =>
-                  editConfig((previous) => ({
-                    ...previous,
-                    isotopes: previous.isotopes.filter(
-                      (item) => item.id !== isotope.id
-                    ),
-                  }))
-                }
-                aria-label={`Remove ${isotope.name}`}
-                className="text-slate-500 hover:text-red-400"
-              >
-                <X size={13} />
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-    )}
-
-    <p className="text-xs text-slate-500">
-      Catalog labels describe physical isotope stability.
-      The selected status is an admin-defined simulation
-      classification and does not change nuclear properties.
-    </p>
-  </div>
-</Section>
-
+          </Section>
 
           {/* Video */}
           <Section
@@ -1400,8 +1225,8 @@ if (
           >
             {formConfig.scenarioType === "negative" ? (
               <p className="text-sm text-slate-400">
-                Negative scenarios skip video and proceed
-                directly to the live scanner.
+                Negative scenarios skip video and proceed directly to the live
+                scanner.
               </p>
             ) : (
               <div className="space-y-4">
@@ -1440,139 +1265,131 @@ if (
           </Section>
 
           {/* Impression */}
-          
-<Section
-  id="impression"
-  title="Impression Summary"
-  description="Configure multiple findings for the user dashboard"
-  icon={FileText}
-  expanded={isOpen("impression")}
-  onToggle={() => toggleSection("impression")}
->
-  <div className="space-y-4">
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <div>
-        <h3 className="text-sm font-semibold text-white">
-          Impression Entries
-        </h3>
-        <p className="mt-1 text-xs text-slate-400">
-          Add findings and descriptions in display order.
-        </p>
-      </div>
 
-      <span className="rounded-lg bg-blue-500/10 px-3 py-1.5 text-xs text-blue-400">
-        {formConfig.impression.length} Entries
-      </span>
-    </div>
+          <Section
+            id="impression"
+            title="Impression Summary"
+            description="Configure multiple findings for the user dashboard"
+            icon={FileText}
+            expanded={isOpen("impression")}
+            onToggle={() => toggleSection("impression")}
+          >
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-semibold text-white">
+                    Impression Entries
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-400">
+                    Add findings and descriptions in display order.
+                  </p>
+                </div>
 
-    {formConfig.impression.map((item, index) => (
-      <div
-        key={index}
-        className="rounded-xl border border-slate-800 bg-[#0a1729] p-4"
-      >
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h4 className="text-sm font-semibold text-slate-200">
-            Impression {index + 1}
-          </h4>
+                <span className="rounded-lg bg-blue-500/10 px-3 py-1.5 text-xs text-blue-400">
+                  {formConfig.impression.length} Entries
+                </span>
+              </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              disabled={index === 0}
-              onClick={() => moveImpression(index, -1)}
-              aria-label={`Move impression ${index + 1} up`}
-              className="rounded-lg border border-slate-700 p-2 text-slate-400 hover:text-white disabled:opacity-30"
-            >
-              <ChevronUp size={16} />
-            </button>
+              {formConfig.impression.map((item, index) => (
+                <div
+                  key={index}
+                  className="rounded-xl border border-slate-800 bg-[#0a1729] p-4"
+                >
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                    <h4 className="text-sm font-semibold text-slate-200">
+                      Impression {index + 1}
+                    </h4>
 
-            <button
-              type="button"
-              disabled={
-                index === formConfig.impression.length - 1
-              }
-              onClick={() => moveImpression(index, 1)}
-              aria-label={`Move impression ${index + 1} down`}
-              className="rounded-lg border border-slate-700 p-2 text-slate-400 hover:text-white disabled:opacity-30"
-            >
-              <ChevronDown size={16} />
-            </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={index === 0}
+                        onClick={() => moveImpression(index, -1)}
+                        aria-label={`Move impression ${index + 1} up`}
+                        className="rounded-lg border border-slate-700 p-2 text-slate-400 hover:text-white disabled:opacity-30"
+                      >
+                        <ChevronUp size={16} />
+                      </button>
 
-            <button
-              type="button"
-              onClick={() => removeImpression(index)}
-              aria-label={`Remove impression ${index + 1}`}
-              className="rounded-lg border border-red-900/40 p-2 text-red-400 hover:bg-red-950/30"
-            >
-              <Trash2 size={16} />
-            </button>
-          </div>
-        </div>
+                      <button
+                        type="button"
+                        disabled={index === formConfig.impression.length - 1}
+                        onClick={() => moveImpression(index, 1)}
+                        aria-label={`Move impression ${index + 1} down`}
+                        className="rounded-lg border border-slate-700 p-2 text-slate-400 hover:text-white disabled:opacity-30"
+                      >
+                        <ChevronDown size={16} />
+                      </button>
 
-        <div className="space-y-3">
-          <Field label="Impression Title">
-            <input
-              required
-              maxLength={150}
-              placeholder="Enter finding title"
-              className={inputStyle}
-              value={item.title}
-              onChange={(event) =>
-                updateImpression(
-                  index,
-                  "title",
-                  event.target.value
-                )
-              }
-            />
-          </Field>
+                      <button
+                        type="button"
+                        onClick={() => removeImpression(index)}
+                        aria-label={`Remove impression ${index + 1}`}
+                        className="rounded-lg border border-red-900/40 p-2 text-red-400 hover:bg-red-950/30"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
 
-          <Field label="Description">
-            <textarea
-              required
-              rows={3}
-              maxLength={3000}
-              placeholder="Describe the finding..."
-              className={textareaStyle}
-              value={item.description}
-              onChange={(event) =>
-                updateImpression(
-                  index,
-                  "description",
-                  event.target.value
-                )
-              }
-            />
-          </Field>
-        </div>
-      </div>
-    ))}
+                  <div className="space-y-3">
+                    <Field label="Impression Title">
+                      <input
+                        required
+                        maxLength={150}
+                        placeholder="Enter finding title"
+                        className={inputStyle}
+                        value={item.title}
+                        onChange={(event) =>
+                          updateImpression(index, "title", event.target.value)
+                        }
+                      />
+                    </Field>
 
-    {formConfig.impression.length === 0 && (
-      <p className="rounded-xl border border-dashed border-slate-700 p-5 text-center text-sm text-slate-400">
-        No impressions added. Add an entry to begin.
-      </p>
-    )}
+                    <Field label="Description">
+                      <textarea
+                        required
+                        rows={3}
+                        maxLength={3000}
+                        placeholder="Describe the finding..."
+                        className={textareaStyle}
+                        value={item.description}
+                        onChange={(event) =>
+                          updateImpression(
+                            index,
+                            "description",
+                            event.target.value,
+                          )
+                        }
+                      />
+                    </Field>
+                  </div>
+                </div>
+              ))}
 
-    <button
-      type="button"
-      onClick={addImpression}
-      className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-blue-500/40 bg-blue-500/5 px-4 py-3 text-sm font-medium text-blue-400 transition hover:bg-blue-500/10"
-    >
-      <Plus size={17} />
-      Add Impression
-    </button>
-  </div>
-</Section>
+              {formConfig.impression.length === 0 && (
+                <p className="rounded-xl border border-dashed border-slate-700 p-5 text-center text-sm text-slate-400">
+                  No impressions added. Add an entry to begin.
+                </p>
+              )}
 
+              <button
+                type="button"
+                onClick={addImpression}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-blue-500/40 bg-blue-500/5 px-4 py-3 text-sm font-medium text-blue-400 transition hover:bg-blue-500/10"
+              >
+                <Plus size={17} />
+                Add Impression
+              </button>
+            </div>
+          </Section>
 
           {/* Save bar */}
           <div className="sticky bottom-4 z-20 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-700 bg-[#14243a]/95 p-4 shadow-xl backdrop-blur">
             <p className="text-xs text-slate-400">
               Configuration for{" "}
               <strong className="text-slate-200">
-                {selectedUser?.name ||
-                  selectedUser?.username}
+                {selectedUser?.name || selectedUser?.username}
               </strong>
             </p>
 

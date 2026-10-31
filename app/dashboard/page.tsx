@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -49,14 +48,8 @@ export default function DashboardPage() {
 
   const impressions = getImpressions(results.impression);
 
-  const formatValue = (
-    value: number | null | undefined,
-    digits: number
-  ) => {
-    if (
-      typeof value !== "number" ||
-      !Number.isFinite(value)
-    ) {
+  const formatValue = (value: number | null | undefined, digits: number) => {
+    if (typeof value !== "number" || !Number.isFinite(value)) {
       return "—";
     }
 
@@ -75,9 +68,7 @@ export default function DashboardPage() {
         {/* Page title and navigation */}
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold sm:text-3xl">
-              Scan Results
-            </h1>
+            <h1 className="text-2xl font-semibold sm:text-3xl">Scan Results</h1>
 
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Recorded radiation scan results
@@ -129,10 +120,7 @@ export default function DashboardPage() {
 
                     <div className="mt-3 flex flex-wrap items-baseline gap-2">
                       <span className="text-3xl font-semibold tracking-tight">
-                        {formatValue(
-                          metric.value,
-                          metric.digits
-                        )}
+                        {formatValue(metric.value, metric.digits)}
                       </span>
 
                       <span className="text-sm text-slate-500 dark:text-slate-400">
@@ -146,9 +134,7 @@ export default function DashboardPage() {
 
             {/* Device information */}
             <section className="rounded-xl border border-slate-200 bg-gray-200 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900/70">
-              <h2 className="mb-4 text-lg font-semibold">
-                Device Information
-              </h2>
+              <h2 className="mb-4 text-lg font-semibold">Device Information</h2>
 
               <DeviceStatus
                 device={results.device}
@@ -160,9 +146,7 @@ export default function DashboardPage() {
 
             {/* One Impression Summary */}
             <section>
-              <ImpressionSection
-                impressions={impressions}
-              />
+              <ImpressionSection impressions={impressions} />
             </section>
           </div>
         )}

@@ -1,12 +1,6 @@
-
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import ParticleImpactAnimation from "@/components/animations/ParticleImpactAnimation";
@@ -32,9 +26,7 @@ const ALERT_DURATION = 20;
 export default function ParticleImpactPage() {
   const router = useRouter();
 
-  const [config, setConfig] = useState<ScanConfig | null>(
-    null
-  );
+  const [config, setConfig] = useState<ScanConfig | null>(null);
 
   const [error, setError] = useState("");
   const [phase, setPhase] = useState<ScanPhase>("animation");
@@ -49,15 +41,12 @@ export default function ParticleImpactPage() {
 
     async function loadConfig() {
       try {
-        const response = await fetch(
-          "/api/simulations/active",
-          { cache: "no-store" }
-        );
+        const response = await fetch("/api/simulations/active", {
+          cache: "no-store",
+        });
 
         if (!response.ok) {
-          throw new Error(
-            "Unable to load active simulation"
-          );
+          throw new Error("Unable to load active simulation");
         }
 
         const data = await response.json();
@@ -66,13 +55,8 @@ export default function ParticleImpactPage() {
 
         const scenarioType = data.scenarioType;
 
-        if (
-          scenarioType !== "positive" &&
-          scenarioType !== "negative"
-        ) {
-          throw new Error(
-            "Invalid scenario configuration"
-          );
+        if (scenarioType !== "positive" && scenarioType !== "negative") {
+          throw new Error("Invalid scenario configuration");
         }
 
         if (!data.id) {
@@ -88,9 +72,7 @@ export default function ParticleImpactPage() {
         if (cancelled) return;
 
         setError(
-          err instanceof Error
-            ? err.message
-            : "Failed to initialize animation"
+          err instanceof Error ? err.message : "Failed to initialize animation",
         );
       }
     }
@@ -102,9 +84,7 @@ export default function ParticleImpactPage() {
     };
   }, []);
 
-  const duration = config
-    ? PARTICLE_DURATION[config.scenarioType]
-    : 0;
+  const duration = config ? PARTICLE_DURATION[config.scenarioType] : 0;
 
   // 2. Called ONLY when the animation finishes.
   const handleAnimationComplete = useCallback(() => {
@@ -126,10 +106,7 @@ export default function ParticleImpactPage() {
     const interval = window.setInterval(() => {
       const elapsed = (Date.now() - startedAt) / 1000;
 
-      const secondsLeft = Math.max(
-        0,
-        Math.ceil(ALERT_DURATION - elapsed)
-      );
+      const secondsLeft = Math.max(0, Math.ceil(ALERT_DURATION - elapsed));
 
       setRemaining(secondsLeft);
     }, 250);
@@ -153,10 +130,9 @@ export default function ParticleImpactPage() {
 
     async function verifyAndNavigate() {
       try {
-        const response = await fetch(
-          "/api/simulations/active",
-          { cache: "no-store" }
-        );
+        const response = await fetch("/api/simulations/active", {
+          cache: "no-store",
+        });
 
         if (!response.ok) {
           throw new Error("Unable to verify scan");
@@ -167,23 +143,16 @@ export default function ParticleImpactPage() {
         if (cancelled) return;
 
         if (data.id !== config!.scanId) {
-          throw new Error(
-            "Active scan has changed"
-          );
+          throw new Error("Active scan has changed");
         }
 
         // Validate the scenario is still the same.
-        if (
-          data.scenarioType !== config!.scenarioType
-        ) {
-          throw new Error(
-            "Scan scenario has changed"
-          );
+        if (data.scenarioType !== config!.scenarioType) {
+          throw new Error("Scan scenario has changed");
         }
 
         const nextRoute =
-          config!.scenarioType === "positive" &&
-          config!.videoEnabled
+          config!.scenarioType === "positive" && config!.videoEnabled
             ? "/scan/uplinkv2"
             : "/scan/live";
 
@@ -192,9 +161,7 @@ export default function ParticleImpactPage() {
         if (cancelled) return;
 
         setError(
-          err instanceof Error
-            ? err.message
-            : "Unable to complete scan"
+          err instanceof Error ? err.message : "Unable to complete scan",
         );
       }
     }
@@ -231,16 +198,8 @@ export default function ParticleImpactPage() {
           variant={config.scenarioType}
           duration={duration}
           loop={false}
-          particleCount={
-            config.scenarioType === "positive"
-              ? 8500
-              : 5000
-          }
-          ringCount={
-            config.scenarioType === "positive"
-              ? 12
-              : 0
-          }
+          particleCount={config.scenarioType === "positive" ? 8500 : 5000}
+          ringCount={config.scenarioType === "positive" ? 12 : 0}
           className="absolute inset-0"
           onComplete={handleAnimationComplete}
         />

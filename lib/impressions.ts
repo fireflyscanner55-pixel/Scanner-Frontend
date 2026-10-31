@@ -1,15 +1,12 @@
-
 import type { UserImpression } from "@/types/radioanalysis";
 
-export function getImpressions(
-  value: unknown
-): UserImpression[] {
+export function getImpressions(value: unknown): UserImpression[] {
   if (Array.isArray(value)) {
     return value.filter(
       (item): item is UserImpression =>
         item &&
         typeof item.title === "string" &&
-        typeof item.description === "string"
+        typeof item.description === "string",
     );
   }
 

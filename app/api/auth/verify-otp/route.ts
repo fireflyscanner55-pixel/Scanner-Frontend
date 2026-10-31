@@ -8,17 +8,11 @@ import {
 import { formatIndianPhoneNumber } from "@/lib/phone";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_MOCK_API_URL ??
-  "http://localhost:3001";
-
+  process.env.NEXT_PUBLIC_MOCK_API_URL ?? "http://localhost:3001";
 
 export async function POST(request: Request) {
   try {
-    const {
-      mobileNumber,
-      otp,
-      challengeToken,
-    } = await request.json();
+    const { mobileNumber, otp, challengeToken } = await request.json();
 
     if (
       typeof mobileNumber !== "string" ||
@@ -30,7 +24,7 @@ export async function POST(request: Request) {
           success: false,
           message: "Required authentication information is missing.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -39,9 +33,9 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          message:"Please enter a valid 10-digit Indian mobile number.",
+          message: "Please enter a valid 10-digit Indian mobile number.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -51,38 +45,32 @@ export async function POST(request: Request) {
           success: false,
           message: "OTP must contain exactly 6 digits.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const challenge = await verifyChallengeToken(
-      challengeToken
-    );
+    const challenge = await verifyChallengeToken(challengeToken);
 
     if (!challenge) {
       return NextResponse.json(
         {
           success: false,
-          message:
-            "Your login session has expired. Please sign in again.",
+          message: "Your login session has expired. Please sign in again.",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     const verificationResult = verifyOtp(
       formattedMobileNumber,
       challengeToken,
-      otp
+      otp,
     );
 
     const messages = {
-      not_found:
-        "No active OTP was found. Please request a new OTP.",
-      expired:
-        "Your OTP has expired. Please request a new OTP.",
-      too_many_attempts:
-        "Too many invalid attempts. Please request a new OTP.",
+      not_found: "No active OTP was found. Please request a new OTP.",
+      expired: "Your OTP has expired. Please request a new OTP.",
+      too_many_attempts: "Too many invalid attempts. Please request a new OTP.",
       invalid: "Invalid OTP. Please try again.",
     };
 
@@ -93,41 +81,38 @@ export async function POST(request: Request) {
           message: messages[verificationResult],
         },
         {
-          status:
-            verificationResult === "too_many_attempts"
-              ? 429
-              : 401,
-        }
+          status: verificationResult === "too_many_attempts" ? 429 : 401,
+        },
       );
     }
 
     const userResponse = await fetch(
-  `${API_BASE_URL}/users?username=${encodeURIComponent(
-    challenge.username
-  )}`,
-  {
-    cache: "no-store",
-  }
-);
+      `${API_BASE_URL}/users?username=${encodeURIComponent(
+        challenge.username,
+      )}`,
+      {
+        cache: "no-store",
+      },
+    );
 
-const users = await userResponse.json();
-const user = users[0];
+    const users = await userResponse.json();
+    const user = users[0];
 
-if (!user || !user.active || !user.otpEnabled) {
-  return NextResponse.json(
-    {
-      success: false,
-      message: "OTP authentication is unavailable for this user.",
-    },
-    { status: 403 }
-  );
-}
+    if (!user || !user.active || !user.otpEnabled) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "OTP authentication is unavailable for this user.",
+        },
+        { status: 403 },
+      );
+    }
 
-const sessionToken = await createSessionToken({
-  username: user.username,
-  role: user.role,
-  name: user.name,
-});
+    const sessionToken = await createSessionToken({
+      username: user.username,
+      role: user.role,
+      name: user.name,
+    });
 
     const response = NextResponse.json({
       success: true,
@@ -153,7 +138,7 @@ const sessionToken = await createSessionToken({
         success: false,
         message: "Unable to verify OTP.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

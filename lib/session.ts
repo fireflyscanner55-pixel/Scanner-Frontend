@@ -21,7 +21,7 @@ export type ChallengePayload = {
 };
 
 export async function createSessionToken(
-  payload: SessionPayload
+  payload: SessionPayload,
 ): Promise<string> {
   return new SignJWT({
     username: payload.username,
@@ -37,7 +37,7 @@ export async function createSessionToken(
 }
 
 export async function verifySessionToken(
-  token: string
+  token: string,
 ): Promise<SessionPayload | null> {
   try {
     const { payload } = await jwtVerify(token, encodedKey);
@@ -53,10 +53,7 @@ export async function verifySessionToken(
     return {
       username: payload.username,
       role: payload.role,
-      name:
-        typeof payload.name === "string"
-          ? payload.name
-          : undefined,
+      name: typeof payload.name === "string" ? payload.name : undefined,
     };
   } catch {
     return null;
@@ -64,7 +61,7 @@ export async function verifySessionToken(
 }
 
 export async function createChallengeToken(
-  payload: ChallengePayload
+  payload: ChallengePayload,
 ): Promise<string> {
   return new SignJWT({
     username: payload.username,
@@ -78,15 +75,12 @@ export async function createChallengeToken(
 }
 
 export async function verifyChallengeToken(
-  token: string
+  token: string,
 ): Promise<ChallengePayload | null> {
   try {
     const { payload } = await jwtVerify(token, encodedKey);
 
-    if (
-      payload.type !== "challenge" ||
-      typeof payload.username !== "string"
-    ) {
+    if (payload.type !== "challenge" || typeof payload.username !== "string") {
       return null;
     }
 

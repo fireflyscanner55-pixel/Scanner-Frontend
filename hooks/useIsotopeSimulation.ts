@@ -16,8 +16,7 @@ const ISOTOPE_CHANGE_INTERVAL = 500;
 
 export function useIsotopeSimulation(): UseIsotopeSimulationResult {
   const [isotopes, setIsotopes] = useState<Isotope[]>([]);
-  const [currentIsotope, setCurrentIsotope] =
-    useState<Isotope | null>(null);
+  const [currentIsotope, setCurrentIsotope] = useState<Isotope | null>(null);
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,9 +39,7 @@ export function useIsotopeSimulation(): UseIsotopeSimulationResult {
 
         setIsotopes(data);
 
-        const randomIndex = Math.floor(
-          Math.random() * data.length
-        );
+        const randomIndex = Math.floor(Math.random() * data.length);
 
         setCurrentIsotope(data[randomIndex]);
       } catch (err) {
@@ -51,7 +48,7 @@ export function useIsotopeSimulation(): UseIsotopeSimulationResult {
         setError(
           err instanceof Error
             ? err.message
-            : "Unable to load isotope configuration."
+            : "Unable to load isotope configuration.",
         );
       } finally {
         if (!cancelled) {
@@ -77,16 +74,14 @@ export function useIsotopeSimulation(): UseIsotopeSimulationResult {
         }
 
         const available = isotopes.filter(
-          (isotope) => isotope.id !== previous.id
+          (isotope) => isotope.id !== previous.id,
         );
 
         if (!available.length) {
           return previous;
         }
 
-        const randomIndex = Math.floor(
-          Math.random() * available.length
-        );
+        const randomIndex = Math.floor(Math.random() * available.length);
 
         return available[randomIndex];
       });

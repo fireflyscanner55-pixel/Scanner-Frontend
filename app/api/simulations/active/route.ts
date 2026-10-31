@@ -1,2 +1,5 @@
 import { proxyJson } from "@/lib/backend";
-export async function GET() { return proxyJson("/api/simulations/active"); }
+
+export async function GET() {
+  return proxyJson("/api/simulations/active");
+}

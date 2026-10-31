@@ -10,17 +10,13 @@ import {
   YAxis,
 } from "recharts";
 
-import type {
-  MonthlyAreaChartPoint,
-} from "@/types/dashboard";
+import type { MonthlyAreaChartPoint } from "@/types/dashboard";
 
 type MonthlyAreaChartProps = {
   data: MonthlyAreaChartPoint[];
 };
 
-export default function MonthlyAreaChart({
-  data,
-}: MonthlyAreaChartProps) {
+export default function MonthlyAreaChart({ data }: MonthlyAreaChartProps) {
   return (
     <section
       className="
@@ -52,17 +48,9 @@ export default function MonthlyAreaChart({
                 x2="0"
                 y2="1"
               >
-                <stop
-                  offset="5%"
-                  stopColor="#3b82c4"
-                  stopOpacity={0.85}
-                />
+                <stop offset="5%" stopColor="#3b82c4" stopOpacity={0.85} />
 
-                <stop
-                  offset="95%"
-                  stopColor="#3b82c4"
-                  stopOpacity={0.15}
-                />
+                <stop offset="95%" stopColor="#3b82c4" stopOpacity={0.15} />
               </linearGradient>
             </defs>
 
@@ -121,9 +109,7 @@ export default function MonthlyAreaChart({
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 bg-[#3b82c4]" />
 
-          <span className="text-[11px] text-slate-600">
-            Element 1
-          </span>
+          <span className="text-[11px] text-slate-600">Element 1</span>
         </div>
       </div>
     </section>

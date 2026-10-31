@@ -210,9 +210,7 @@ export default function LoginForm() {
 
             <button
               type="button"
-              aria-label={
-                showPassword ? "Hide password" : "Show password"
-              }
+              aria-label={showPassword ? "Hide password" : "Show password"}
               onClick={() => setShowPassword((value) => !value)}
               className="
                 absolute
@@ -280,9 +278,7 @@ export default function LoginForm() {
               "
             />
 
-            <span className="text-sm text-white/55">
-              Remember me
-            </span>
+            <span className="text-sm text-white/55">Remember me</span>
           </label>
         </div>
 
@@ -334,7 +330,6 @@ export default function LoginForm() {
                   border-t-black
                 "
               />
-
               Signing in...
             </span>
           ) : (
@@ -345,9 +340,7 @@ export default function LoginForm() {
 
       {/* Footer */}
       <div className="mt-8 text-center">
-        <p className="text-xs text-white/30">
-          Authorized users only
-        </p>
+        <p className="text-xs text-white/30">Authorized users only</p>
       </div>
     </div>
   );

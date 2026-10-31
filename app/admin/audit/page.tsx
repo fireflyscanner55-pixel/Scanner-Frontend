@@ -1,12 +1,5 @@
-
 "use client";
-
-import {
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   Activity,
   CalendarDays,
@@ -37,16 +30,11 @@ type AuditEvent = {
   raw: AuditRecord;
 };
 
-type CategoryFilter =
-  | "all"
-  | "user"
-  | "scenario"
-  | "other";
+type CategoryFilter = "all" | "user" | "scenario" | "other";
 
 const PAGE_SIZE = 10;
 
-const panel =
-  "rounded-2xl border border-slate-800 bg-[#101f33]";
+const panel = "rounded-2xl border border-slate-800 bg-[#101f33]";
 
 const control =
   "h-9 rounded-lg border border-slate-700 bg-slate-950 px-3 text-xs text-slate-200 outline-none focus:border-blue-500";
@@ -58,17 +46,11 @@ function readString(
   for (const key of keys) {
     const value = record[key];
 
-    if (
-      typeof value === "string" &&
-      value.trim()
-    ) {
+    if (typeof value === "string" && value.trim()) {
       return value;
     }
 
-    if (
-      typeof value === "number" &&
-      Number.isFinite(value)
-    ) {
+    if (typeof value === "number" && Number.isFinite(value)) {
       return String(value);
     }
   }
@@ -81,9 +63,7 @@ function formatDate(value: string | null) {
 
   const date = new Date(value);
 
-  return Number.isNaN(date.getTime())
-    ? "—"
-    : date.toLocaleString();
+  return Number.isNaN(date.getTime()) ? "—" : date.toLocaleString();
 }
 
 function parseTime(value: string | null) {
@@ -91,41 +71,28 @@ function parseTime(value: string | null) {
 
   const timestamp = new Date(value).getTime();
 
-  return Number.isFinite(timestamp)
-    ? timestamp
-    : 0;
+  return Number.isFinite(timestamp) ? timestamp : 0;
 }
 
-function normalizeEvent(
-  record: AuditRecord,
-  index: number
-): AuditEvent {
+function normalizeEvent(record: AuditRecord, index: number): AuditEvent {
   const action =
-    readString(
-      record,
-      "action",
-      "event",
-      "eventType",
-      "type"
-    ) ?? "Unknown event";
+    readString(record, "action", "event", "eventType", "type") ??
+    "Unknown event";
 
   // Categories are inferred from action text.
   // They are not assumed to be backend-provided.
   const actionText = action.toLowerCase();
 
-  const category: AuditEvent["category"] =
-    /scenario|simulation/.test(actionText)
-      ? "scenario"
-      : /user|account|otp|login|logout|password/.test(
-            actionText
-          )
-        ? "user"
-        : "other";
+  const category: AuditEvent["category"] = /scenario|simulation/.test(
+    actionText,
+  )
+    ? "scenario"
+    : /user|account|otp|login|logout|password/.test(actionText)
+      ? "user"
+      : "other";
 
   return {
-    id:
-      readString(record, "id", "_id") ??
-      `event-${index}`,
+    id: readString(record, "id", "_id") ?? `event-${index}`,
     action,
     actor:
       readString(
@@ -134,24 +101,13 @@ function normalizeEvent(
         "actorId",
         "adminId",
         "performedBy",
-        "userId"
+        "userId",
       ) ?? "—",
     target:
-      readString(
-        record,
-        "target",
-        "targetId",
-        "entityId",
-        "resourceId"
-      ) ?? "—",
+      readString(record, "target", "targetId", "entityId", "resourceId") ?? "—",
     timestamp:
-      readString(
-        record,
-        "createdAt",
-        "timestamp",
-        "occurredAt",
-        "date"
-      ) ?? null,
+      readString(record, "createdAt", "timestamp", "occurredAt", "date") ??
+      null,
     category,
     raw: record,
   };
@@ -162,39 +118,23 @@ function unwrapEvents(payload: unknown): AuditRecord[] {
     return payload;
   }
 
-  if (
-    !payload ||
-    typeof payload !== "object"
-  ) {
+  if (!payload || typeof payload !== "object") {
     throw new Error("Unexpected audit API response");
   }
 
   const value = payload as AuditRecord;
 
-  for (const key of [
-    "logs",
-    "audit",
-    "events",
-    "data",
-  ]) {
+  for (const key of ["logs", "audit", "events", "data"]) {
     if (Array.isArray(value[key])) {
       return value[key] as AuditRecord[];
     }
   }
 
   // Supports { data: { logs: [...] } }.
-  if (
-    value.data &&
-    typeof value.data === "object"
-  ) {
+  if (value.data && typeof value.data === "object") {
     const nested = value.data as AuditRecord;
 
-    for (const key of [
-      "logs",
-      "audit",
-      "events",
-      "items",
-    ]) {
+    for (const key of ["logs", "audit", "events", "items"]) {
       if (Array.isArray(nested[key])) {
         return nested[key] as AuditRecord[];
       }
@@ -221,19 +161,13 @@ function MetricCard({
     <article className={`${panel} p-5`}>
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs text-slate-400">
-            {label}
-          </p>
+          <p className="text-xs text-slate-400">{label}</p>
           <p className="mt-3 text-3xl font-semibold text-white">
             {loading ? "—" : value}
           </p>
         </div>
 
-        <div
-          className={`rounded-xl bg-slate-950 p-2.5 ${color}`}
-        >
-          {icon}
-        </div>
+        <div className={`rounded-xl bg-slate-950 p-2.5 ${color}`}>{icon}</div>
       </div>
     </article>
   );
@@ -272,10 +206,7 @@ function DetailsDialog({
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2
-              id="audit-details-title"
-              className="text-xl font-semibold"
-            >
+            <h2 id="audit-details-title" className="text-xl font-semibold">
               Audit Event Details
             </h2>
             <p className="mt-1 text-xs text-slate-400">
@@ -299,20 +230,14 @@ function DetailsDialog({
               key={label}
               className="min-w-0 rounded-xl border border-slate-800 bg-slate-950/50 p-3"
             >
-              <p className="text-xs text-slate-500">
-                {label}
-              </p>
-              <p className="mt-1 break-all text-sm text-slate-200">
-                {value}
-              </p>
+              <p className="text-xs text-slate-500">{label}</p>
+              <p className="mt-1 break-all text-sm text-slate-200">{value}</p>
             </div>
           ))}
         </div>
 
         <div className="mt-6">
-          <h3 className="mb-3 text-sm font-semibold">
-            Recorded Event Data
-          </h3>
+          <h3 className="mb-3 text-sm font-semibold">Recorded Event Data</h3>
 
           <pre className="max-h-[300px] overflow-auto rounded-xl border border-slate-800 bg-[#07111f] p-4 text-xs leading-relaxed text-slate-300">
             {JSON.stringify(event.raw, null, 2)}
@@ -320,8 +245,8 @@ function DetailsDialog({
         </div>
 
         <p className="mt-3 text-xs text-slate-500">
-          This displays the data recorded by the backend.
-          It does not reconstruct unrecorded changes.
+          This displays the data recorded by the backend. It does not
+          reconstruct unrecorded changes.
         </p>
       </section>
     </div>
@@ -329,42 +254,33 @@ function DetailsDialog({
 }
 
 export default function AdminAuditPage() {
+  const { preferences } = useAdminPreferences();
 
-    const { preferences } = useAdminPreferences();
-
-  const [events, setEvents] = useState<
-    AuditEvent[]
-  >([]);
+  const [events, setEvents] = useState<AuditEvent[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
 
   const [search, setSearch] = useState("");
-  const [category, setCategory] =
-    useState<CategoryFilter>("all");
+  const [category, setCategory] = useState<CategoryFilter>("all");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [page, setPage] = useState(1);
 
-  const [selectedEvent, setSelectedEvent] =
-    useState<AuditEvent | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<AuditEvent | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
 
     async function load() {
       try {
-        const response = await fetch(
-          "/api/admin/audit",
-          {
-            cache: "no-store",
-            signal: controller.signal,
-          }
-        );
+        const response = await fetch("/api/admin/audit", {
+          cache: "no-store",
+          signal: controller.signal,
+        });
 
-        const payload: unknown =
-          await response.json();
+        const payload: unknown = await response.json();
 
         if (!response.ok) {
           const message =
@@ -383,9 +299,7 @@ export default function AdminAuditPage() {
         if (controller.signal.aborted) return;
 
         setEvents(
-          records.map((record, index) =>
-            normalizeEvent(record, index)
-          )
+          records.map((record, index) => normalizeEvent(record, index)),
         );
 
         setError("");
@@ -393,9 +307,7 @@ export default function AdminAuditPage() {
         if (controller.signal.aborted) return;
 
         setError(
-          cause instanceof Error
-            ? cause.message
-            : "Unable to load audit logs"
+          cause instanceof Error ? cause.message : "Unable to load audit logs",
         );
       } finally {
         if (!controller.signal.aborted) {
@@ -412,84 +324,46 @@ export default function AdminAuditPage() {
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
 
-    const from = startDate
-      ? new Date(`${startDate}T00:00:00`).getTime()
-      : null;
+    const from = startDate ? new Date(`${startDate}T00:00:00`).getTime() : null;
 
-    const to = endDate
-      ? new Date(`${endDate}T23:59:59.999`).getTime()
-      : null;
+    const to = endDate ? new Date(`${endDate}T23:59:59.999`).getTime() : null;
 
     return events
       .filter((event) => {
         const matchesSearch =
           !query ||
-          [
-            event.action,
-            event.actor,
-            event.target,
-            event.id,
-          ].some((field) =>
-            field.toLowerCase().includes(query)
+          [event.action, event.actor, event.target, event.id].some((field) =>
+            field.toLowerCase().includes(query),
           );
 
         const matchesCategory =
-          category === "all" ||
-          event.category === category;
+          category === "all" || event.category === category;
 
-        const timestamp = parseTime(
-          event.timestamp
-        );
+        const timestamp = parseTime(event.timestamp);
 
         const matchesStart =
-          from === null ||
-          (timestamp > 0 && timestamp >= from);
+          from === null || (timestamp > 0 && timestamp >= from);
 
-        const matchesEnd =
-          to === null ||
-          (timestamp > 0 && timestamp <= to);
+        const matchesEnd = to === null || (timestamp > 0 && timestamp <= to);
 
-        return (
-          matchesSearch &&
-          matchesCategory &&
-          matchesStart &&
-          matchesEnd
-        );
+        return matchesSearch && matchesCategory && matchesStart && matchesEnd;
       })
-      .sort(
-        (a, b) =>
-          parseTime(b.timestamp) -
-          parseTime(a.timestamp)
-      );
-  }, [
-    events,
-    search,
-    category,
-    startDate,
-    endDate,
-  ]);
+      .sort((a, b) => parseTime(b.timestamp) - parseTime(a.timestamp));
+  }, [events, search, category, startDate, endDate]);
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filtered.length / PAGE_SIZE)
-  );
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
 
-  const currentPage = Math.min(
-    page,
-    totalPages
-  );
+  const currentPage = Math.min(page, totalPages);
 
   const visibleEvents = filtered.slice(
     (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
+    currentPage * PAGE_SIZE,
   );
 
-  const userCount = events.filter(
-    (event) => event.category === "user"
-  ).length;
+  const userCount = events.filter((event) => event.category === "user").length;
 
   const scenarioCount = events.filter(
-    (event) => event.category === "scenario"
+    (event) => event.category === "scenario",
   ).length;
 
   const clearFilters = () => {
@@ -522,12 +396,7 @@ export default function AdminAuditPage() {
           }}
           className="flex items-center gap-2 rounded-lg border border-slate-700 px-4 py-2.5 text-sm hover:bg-slate-800 disabled:opacity-50"
         >
-          <RefreshCw
-            size={16}
-            className={
-              loading ? "animate-spin" : ""
-            }
-          />
+          <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
           Refresh
         </button>
       </header>
@@ -594,9 +463,7 @@ export default function AdminAuditPage() {
             className={`${control} w-[118px]`}
             value={category}
             onChange={(event) => {
-              setCategory(
-                event.target.value as CategoryFilter
-              );
+              setCategory(event.target.value as CategoryFilter);
               setPage(1);
             }}
           >
@@ -658,21 +525,11 @@ export default function AdminAuditPage() {
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead className="bg-slate-800/50 text-xs uppercase tracking-wide text-slate-400">
               <tr>
-                <th className="px-5 py-4">
-                  Activity
-                </th>
-                <th className="px-5 py-4">
-                  Actor
-                </th>
-                <th className="px-5 py-4">
-                  Target
-                </th>
-                <th className="px-5 py-4">
-                  Timestamp
-                </th>
-                <th className="px-5 py-4 text-right">
-                  Details
-                </th>
+                <th className="px-5 py-4">Activity</th>
+                <th className="px-5 py-4">Actor</th>
+                <th className="px-5 py-4">Target</th>
+                <th className="px-5 py-4">Timestamp</th>
+                <th className="px-5 py-4 text-right">Details</th>
               </tr>
             </thead>
 
@@ -697,10 +554,7 @@ export default function AdminAuditPage() {
                 </tr>
               ) : (
                 visibleEvents.map((event) => (
-                  <tr
-                    key={event.id}
-                    className="hover:bg-slate-800/30"
-                  >
+                  <tr key={event.id} className="hover:bg-slate-800/30">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div
@@ -747,9 +601,7 @@ export default function AdminAuditPage() {
                     <td className="px-5 py-4 text-right">
                       <button
                         type="button"
-                        onClick={() =>
-                          setSelectedEvent(event)
-                        }
+                        onClick={() => setSelectedEvent(event)}
                         aria-label={`View details for ${event.action}`}
                         className="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-xs text-blue-400 hover:bg-slate-800"
                       >
@@ -776,11 +628,7 @@ export default function AdminAuditPage() {
             <button
               type="button"
               disabled={currentPage === 1}
-              onClick={() =>
-                setPage((value) =>
-                  Math.max(1, value - 1)
-                )
-              }
+              onClick={() => setPage((value) => Math.max(1, value - 1))}
               aria-label="Previous page"
               className="rounded-lg border border-slate-700 p-2 disabled:opacity-30"
             >
@@ -791,9 +639,7 @@ export default function AdminAuditPage() {
               type="button"
               disabled={currentPage >= totalPages}
               onClick={() =>
-                setPage((value) =>
-                  Math.min(totalPages, value + 1)
-                )
+                setPage((value) => Math.min(totalPages, value + 1))
               }
               aria-label="Next page"
               className="rounded-lg border border-slate-700 p-2 disabled:opacity-30"

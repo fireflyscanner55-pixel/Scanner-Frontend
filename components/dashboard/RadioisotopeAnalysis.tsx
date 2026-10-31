@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type {
-  Isotope,
-  UserScenarioIsotope,
-} from "@/types/radioanalysis";
+import type { Isotope, UserScenarioIsotope } from "@/types/radioanalysis";
 
 interface RadioisotopeAnalysisProps {
   isotope?: Isotope | null;
@@ -13,21 +10,27 @@ interface RadioisotopeAnalysisProps {
   error: string | null;
 }
 
-export default function RadioisotopeAnalysis ({
+export default function RadioisotopeAnalysis({
   isotope,
   isotopes,
   isLoading,
   error,
 }: RadioisotopeAnalysisProps) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const entries = isotopes ?? (isotope ? [{
-    id: isotope.id,
-    name: isotope.name,
-    symbol: isotope.symbol,
-    energy: isotope.energy,
-    description: isotope.description,
-    status: isotope.status?.join(", "),
-  }] : []);
+  const entries =
+    isotopes ??
+    (isotope
+      ? [
+          {
+            id: isotope.id,
+            name: isotope.name,
+            symbol: isotope.symbol,
+            energy: isotope.energy,
+            description: isotope.description,
+            status: isotope.status?.join(", "),
+          },
+        ]
+      : []);
 
   useEffect(() => {
     if (entries.length < 2) return;
@@ -39,12 +42,10 @@ export default function RadioisotopeAnalysis ({
     return () => window.clearInterval(interval);
   }, [entries.length]);
 
-    if (isLoading) {
+  if (isLoading) {
     return (
       <section className="h-72 w-full overflow-hidden rounded-xl border border-gray-200 bg-white p-6 text-slate-950">
-        <h2 className="text-lg font-semibold">
-          Radioisotope Analysis
-        </h2>
+        <h2 className="text-lg font-semibold">Radioisotope Analysis</h2>
 
         <p className="mt-4 text-sm text-gray-500">
           Loading isotope analysis...
@@ -56,13 +57,9 @@ export default function RadioisotopeAnalysis ({
   if (error) {
     return (
       <section className="h-72 w-full overflow-hidden rounded-xl border border-gray-200 p-6 text-slate-950">
-        <h2 className="text-lg font-semibold">
-          Radioisotope Analysis
-        </h2>
+        <h2 className="text-lg font-semibold">Radioisotope Analysis</h2>
 
-        <p className="mt-4 text-sm text-red-500">
-          {error}
-        </p>
+        <p className="mt-4 text-sm text-red-500">{error}</p>
       </section>
     );
   }
@@ -70,9 +67,7 @@ export default function RadioisotopeAnalysis ({
   if (entries.length === 0) {
     return (
       <section className="h-72 w-full overflow-hidden rounded-xl border border-gray-200 bg-white p-6 text-slate-950">
-        <h2 className="text-lg font-semibold">
-          Radioisotope Analysis
-        </h2>
+        <h2 className="text-lg font-semibold">Radioisotope Analysis</h2>
 
         <p className="mt-4 text-sm text-gray-500">
           No isotope is currently available.
@@ -86,9 +81,7 @@ export default function RadioisotopeAnalysis ({
 
   return (
     <section className="h-45 w-full overflow-hidden rounded-xl border border-gray-200 p-6 text-slate-600 dark:text-slate-400">
-
       <div className="mt-1 flex items-center gap-5" aria-live="polite">
-
         <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-gray-300 text-xl font-semibold">
           {selectedIsotope.symbol ?? "RI"}
         </div>
@@ -109,7 +102,6 @@ export default function RadioisotopeAnalysis ({
             </p>
           )}
         </div>
-
       </div>
 
       {selectedIsotope.description && (
@@ -117,9 +109,6 @@ export default function RadioisotopeAnalysis ({
           {selectedIsotope.description}
         </p>
       )}
-
-      
-
     </section>
   );
 }

@@ -15,25 +15,20 @@ const OTP_RESEND_COOLDOWN_MS = 30 * 1000;
 const MAX_OTP_ATTEMPTS = 5;
 
 function hashValue(value: string): string {
-  return createHash("sha256")
-    .update(value)
-    .digest("hex");
+  return createHash("sha256").update(value).digest("hex");
 }
 
 export function generateOtp(): string {
   return randomInt(100000, 1000000).toString();
 }
 
-function createStoreKey(
-  mobileNumber: string,
-  challengeToken: string
-): string {
+function createStoreKey(mobileNumber: string, challengeToken: string): string {
   return `${mobileNumber}:${hashValue(challengeToken)}`;
 }
 
 export function canSendOtp(
   mobileNumber: string,
-  challengeToken: string
+  challengeToken: string,
 ): { allowed: boolean; retryAfter?: number } {
   const key = createStoreKey(mobileNumber, challengeToken);
   const record = otpStore.get(key);
@@ -57,7 +52,7 @@ export function canSendOtp(
 export function saveOtp(
   mobileNumber: string,
   challengeToken: string,
-  otp: string
+  otp: string,
 ): void {
   const now = Date.now();
   const key = createStoreKey(mobileNumber, challengeToken);
@@ -81,7 +76,7 @@ export type VerifyOtpResult =
 export function verifyOtp(
   mobileNumber: string,
   challengeToken: string,
-  otp: string
+  otp: string,
 ): VerifyOtpResult {
   const key = createStoreKey(mobileNumber, challengeToken);
   const record = otpStore.get(key);

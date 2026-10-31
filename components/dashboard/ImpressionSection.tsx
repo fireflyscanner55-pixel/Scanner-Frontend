@@ -1,13 +1,7 @@
-
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  Volume2,
-  Pause,
-  Play,
-  Square,
-} from "lucide-react";
+import { Volume2, Pause, Play, Square } from "lucide-react";
 
 export interface ImpressionEntry {
   title: string;
@@ -28,12 +22,9 @@ export default function ImpressionSection({
   const speechText = useMemo(
     () =>
       impressions
-        .map(
-          (item, index) =>
-            `${item.title}. ${item.description}`
-        )
+        .map((item, index) => `${item.title}. ${item.description}`)
         .join(". "),
-    [impressions]
+    [impressions],
   );
 
   useEffect(() => {
@@ -58,7 +49,7 @@ export default function ImpressionSection({
     synthesis.cancel();
 
     const utterance = new SpeechSynthesisUtterance(
-      `Impression Summary. ${speechText}`
+      `Impression Summary. ${speechText}`,
     );
 
     utterance.lang = "en-IN";
@@ -96,9 +87,7 @@ export default function ImpressionSection({
   return (
     <section className="rounded-xl border border-slate-200 bg-gray-200 p-5 text-slate-950">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold">
-          Impression Summary
-        </h2>
+        <h2 className="text-lg font-semibold">Impression Summary</h2>
 
         <div className="flex items-center gap-2">
           <button

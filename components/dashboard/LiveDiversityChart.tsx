@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -57,73 +56,50 @@ const configs: PanelConfig[] = [
   },
 ];
 
-
-const clamp = (n: number, a: number, b: number) =>
-  Math.max(a, Math.min(b, n));
+const clamp = (n: number, a: number, b: number) => Math.max(a, Math.min(b, n));
 
 function normal() {
-  return (
-    Math.random() +
-    Math.random() +
-    Math.random() +
-    Math.random() -
-    2
-  );
+  return Math.random() + Math.random() + Math.random() + Math.random() - 2;
 }
 
 function createPoint(
   id: number,
   config: PanelConfig,
-  panelIndex: number
+  panelIndex: number,
 ): ChartPoint {
   const actual = clamp(
     config.center + normal() * config.spread,
     config.min,
-    config.max
+    config.max,
   );
 
   let predicted: number;
 
   if (panelIndex === 0) {
-    predicted =
-      7 + actual * 0.65 + normal() * 12;
+    predicted = 7 + actual * 0.65 + normal() * 12;
     predicted = Math.min(predicted, 45);
   } else if (panelIndex === 1) {
-    predicted =
-      0.55 + (actual - 0.54) * 0.32 +
-      normal() * 0.025;
+    predicted = 0.55 + (actual - 0.54) * 0.32 + normal() * 0.025;
   } else {
-    predicted =
-      actual + normal() * 37;
+    predicted = actual + normal() * 37;
   }
 
   return {
     id,
     actual,
-    predicted: clamp(
-      predicted,
-      config.min,
-      config.max
-    ),
+    predicted: clamp(predicted, config.min, config.max),
     group: Math.floor(Math.random() * 4),
   };
 }
 
-function histogram(
-  values: number[],
-  min: number,
-  max: number,
-  bins = 28
-) {
+function histogram(values: number[], min: number, max: number, bins = 28) {
   const counts = Array(bins).fill(0) as number[];
 
   values.forEach((value) => {
     const index = clamp(
-      Math.floor(
-        ((value - min) / (max - min)) * bins
-      ),
+      Math.floor(((value - min) / (max - min)) * bins),
       0,
-      bins - 1
+      bins - 1,
     );
     counts[index]++;
   });
@@ -152,21 +128,18 @@ function Panel({
   const rightX = 339;
   const rightW = 75;
 
-  const sx = (v: number) =>
-    plotX + ((v - min) / range) * plotW;
+  const sx = (v: number) => plotX + ((v - min) / range) * plotW;
 
-  const sy = (v: number) =>
-    plotY + plotH -
-    ((v - min) / range) * plotH;
+  const sy = (v: number) => plotY + plotH - ((v - min) / range) * plotH;
 
   const histX = useMemo(
     () =>
       histogram(
         points.map((p) => p.actual),
         min,
-        max
+        max,
       ),
-    [points, min, max]
+    [points, min, max],
   );
 
   const histRight = useMemo(
@@ -174,9 +147,9 @@ function Panel({
       histogram(
         points.map((p) => p.predicted),
         min,
-        max
+        max,
       ),
-    [points, min, max]
+    [points, min, max],
   );
 
   const maxHistX = Math.max(1, ...histX);
@@ -187,25 +160,21 @@ function Panel({
         (sum, p) =>
           sum +
           Math.abs(
-            (p.actual - p.predicted) /
-              Math.max(Math.abs(p.actual), 0.0001)
+            (p.actual - p.predicted) / Math.max(Math.abs(p.actual), 0.0001),
           ),
-        0
+        0,
       ) / points.length
     : 0;
 
-  const ticks = Array.from(
-    { length: 5 },
-    (_, i) => min + (range * i) / 4
-  );
+  const ticks = Array.from({ length: 5 }, (_, i) => min + (range * i) / 4);
 
-  const fmt = (v: number) =>
-    range < 1 ? v.toFixed(2) : v.toFixed(0);
+  const fmt = (v: number) => (range < 1 ? v.toFixed(2) : v.toFixed(0));
 
   return (
     <div className="min-w-0 bg-white">
-      <h3 className="mb-1 text-center font-serif text-xl font-bold"
-      style={{ color: panelColors.primary }}
+      <h3
+        className="mb-1 text-center font-serif text-xl font-bold"
+        style={{ color: panelColors.primary }}
       >
         {config.title}
       </h3>
@@ -222,16 +191,15 @@ function Panel({
           y={histY}
           width={plotW}
           height={histH}
-          fill={panelColors.primary}
+          fill="#ffffff"
           fillOpacity={0.85}
-          stroke="#666"
+          stroke="#d1d5db"
           strokeWidth="0.7"
         />
 
         {histX.map((count, i) => {
           const binW = plotW / histX.length;
-          const h =
-            (count / maxHistX) * histH * 0.95;
+          const h = (count / maxHistX) * histH * 0.95;
 
           return (
             <rect
@@ -240,28 +208,16 @@ function Panel({
               y={histY + histH - h}
               width={binW + 0.1}
               height={h}
-              fill="#0f0f0f"
+              fill={panelColors.primary}
             />
           );
         })}
 
         {/* Prediction error */}
-        <text
-          x="344"
-          y="62"
-          fill="#111"
-          fontSize="15"
-          fontFamily="serif"
-        >
+        <text x="344" y="62" fill="#111" fontSize="15" fontFamily="serif">
           MAPE:
         </text>
-        <text
-          x="344"
-          y="82"
-          fill="#111"
-          fontSize="14"
-          fontFamily="serif"
-        >
+        <text x="344" y="82" fill="#111" fontSize="14" fontFamily="serif">
           {mape.toFixed(4)}
         </text>
 
@@ -354,29 +310,24 @@ function Panel({
           y={plotY}
           width={rightW}
           height={plotH}
-          fill={panelColors.dark}
+          fill="#ffffff"
           fillOpacity={0.8}
-          stroke="#666"
+          stroke="#d1d5db"
           strokeWidth="0.7"
         />
 
         {histRight.map((count, i) => {
           const binH = plotH / histRight.length;
-          const w =
-            (count / maxHistY) * rightW * 0.95;
+          const w = (count / maxHistY) * rightW * 0.95;
 
           return (
             <rect
               key={i}
               x={rightX}
-              y={
-                plotY +
-                plotH -
-                (i + 1) * binH
-              }
+              y={plotY + plotH - (i + 1) * binH}
               width={w}
               height={binH + 0.1}
-              fill="#0f0f0f"
+              fill={panelColors.dark}
             />
           );
         })}
@@ -393,9 +344,7 @@ function Panel({
         </text>
 
         <text
-          transform={`translate(12 ${
-            plotY + plotH / 2
-          }) rotate(-90)`}
+          transform={`translate(12 ${plotY + plotH / 2}) rotate(-90)`}
           textAnchor="middle"
           fontSize="12"
           fill="#111"
@@ -414,26 +363,19 @@ function Panel({
           stroke="#ccc"
         />
 
-        {["Other", "250 m²", "400 m²", "500 m²"].map(
-          (label, i) => (
-            <g key={label}>
-              <circle 
+        {["Other", "250 m²", "400 m²", "500 m²"].map((label, i) => (
+          <g key={label}>
+            <circle
               cx="237"
               cy={354 + i * 14}
               r="2.2"
               fill={panelColors.shades[i]}
-              />
-              <text
-                x="245"
-                y={357 + i * 14}
-                fontSize="9"
-                fill="#111"
-              >
-                {label}
-              </text>
-            </g>
-          )
-        )}
+            />
+            <text x="245" y={357 + i * 14} fontSize="9" fill="#111">
+              {label}
+            </text>
+          </g>
+        ))}
       </svg>
     </div>
   );
@@ -444,17 +386,15 @@ export default function LiveDiversityChart({
   intervalMs = 1200,
   maxPoints = 300,
 }: DiversityChartProps) {
-  const [datasets, setDatasets] = useState<
-    ChartPoint[][]
-  >([[], [], []]);
+  const [datasets, setDatasets] = useState<ChartPoint[][]>([[], [], []]);
 
   useEffect(() => {
     let nextId = 0;
 
     const initial = configs.map((config, index) =>
       Array.from({ length: maxPoints }, () =>
-        createPoint(nextId++, config, index)
-      )
+        createPoint(nextId++, config, index),
+      ),
     );
 
     // Initialize the generated demonstration dataset
@@ -464,25 +404,20 @@ export default function LiveDiversityChart({
 
     if (!live) return;
 
-    const timer = window.setInterval(() => {
-      setDatasets((previous) =>
-        previous.map((points, index) => {
-          const fresh = Array.from(
-            { length: 5 },
-            () =>
-              createPoint(
-                nextId++,
-                configs[index],
-                index
-              )
-          );
+    const timer = window.setInterval(
+      () => {
+        setDatasets((previous) =>
+          previous.map((points, index) => {
+            const fresh = Array.from({ length: 5 }, () =>
+              createPoint(nextId++, configs[index], index),
+            );
 
-          return [...points, ...fresh].slice(
-            -maxPoints
-          );
-        })
-      );
-    }, Math.max(intervalMs, 100));
+            return [...points, ...fresh].slice(-maxPoints);
+          }),
+        );
+      },
+      Math.max(intervalMs, 100),
+    );
 
     return () => window.clearInterval(timer);
   }, [live, intervalMs, maxPoints]);
@@ -501,14 +436,8 @@ export default function LiveDiversityChart({
         </div>
 
         <div className="flex items-center justify-between border-t border-slate-200 px-3 pt-3 text-xs text-slate-500">
-          <span>
-            {live
-              ? "Live measurements"
-              : "Static measurements"}
-          </span>
-          <span>
-            {datasets[0].length} samples per panel
-          </span>
+          <span>{live ? "Live measurements" : "Static measurements"}</span>
+          <span>{datasets[0].length} samples per panel</span>
         </div>
       </div>
     </section>

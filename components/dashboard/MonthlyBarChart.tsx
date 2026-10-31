@@ -11,17 +11,13 @@ import {
   YAxis,
 } from "recharts";
 
-import type {
-  MonthlyBarChartPoint,
-} from "@/types/dashboard";
+import type { MonthlyBarChartPoint } from "@/types/dashboard";
 
 type MonthlyBarChartProps = {
   data: MonthlyBarChartPoint[];
 };
 
-export default function MonthlyBarChart({
-  data,
-}: MonthlyBarChartProps) {
+export default function MonthlyBarChart({ data }: MonthlyBarChartProps) {
   return (
     <section
       className="
@@ -35,10 +31,7 @@ export default function MonthlyBarChart({
       "
     >
       <div className="h-[240px] w-full sm:h-[280px] lg:h-[300px]">
-        <ResponsiveContainer
-          width="100%"
-          height="100%"
-        >
+        <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={data}
             margin={{

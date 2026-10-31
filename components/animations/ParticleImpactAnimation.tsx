@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -41,16 +40,14 @@ const COLORS = {
   cyan: "#8cdfff",
 };
 
-const clamp = (value: number) =>
-  Math.max(0, Math.min(1, value));
+const clamp = (value: number) => Math.max(0, Math.min(1, value));
 
 const smooth = (value: number) => {
   const t = clamp(value);
   return t * t * (3 - 2 * t);
 };
 
-const random = (min: number, max: number) =>
-  min + Math.random() * (max - min);
+const random = (min: number, max: number) => min + Math.random() * (max - min);
 
 export default function ParticleImpactAnimation({
   variant = "positive",
@@ -109,14 +106,11 @@ export default function ParticleImpactAnimation({
             ? Math.random() > 0.65
               ? COLORS.blue
               : COLORS.purple
-            : [
-                COLORS.orange,
-                COLORS.pink,
-                COLORS.yellow,
-                COLORS.purple,
-              ][Math.floor(Math.random() * 4)],
+            : [COLORS.orange, COLORS.pink, COLORS.yellow, COLORS.purple][
+                Math.floor(Math.random() * 4)
+              ],
         };
-      }
+      },
     );
 
     function glow(
@@ -124,13 +118,11 @@ export default function ParticleImpactAnimation({
       y: number,
       radius: number,
       intensity: number,
-      calm: boolean
+      calm: boolean,
     ) {
       if (radius <= 0 || intensity <= 0) return;
 
-      const gradient = ctx!.createRadialGradient(
-        x, y, 0, x, y, radius
-      );
+      const gradient = ctx!.createRadialGradient(x, y, 0, x, y, radius);
 
       if (calm) {
         gradient.addColorStop(0, "#e7f8ff");
@@ -158,19 +150,13 @@ export default function ParticleImpactAnimation({
       progress: number,
       cx: number,
       cy: number,
-      scale: number
+      scale: number,
     ) {
       // Sudden energy release from the center.
       const flash = Math.exp(-progress * 50);
-      const coreFade =
-        1 - smooth((progress - 0.76) / 0.24);
+      const coreFade = 1 - smooth((progress - 0.76) / 0.24);
 
-      glow(
-        cx, cy,
-        scale * 0.23,
-        Math.min(1, flash + 0.55 * coreFade),
-        false
-      );
+      glow(cx, cy, scale * 0.23, Math.min(1, flash + 0.55 * coreFade), false);
 
       // Shockwave rings emerge sequentially.
       for (let ring = 0; ring < rings; ring++) {
@@ -178,16 +164,12 @@ export default function ParticleImpactAnimation({
 
         if (progress < spawn) continue;
 
-        const age = clamp(
-          (progress - spawn) / (0.94 - spawn)
-        );
+        const age = clamp((progress - spawn) / (0.94 - spawn));
 
-        const radius =
-          scale * (0.035 + 0.88 * age);
+        const radius = scale * (0.035 + 0.88 * age);
 
         const brightness =
-          smooth(age / 0.045) *
-          (1 - smooth((age - 0.7) / 0.3));
+          smooth(age / 0.045) * (1 - smooth((age - 0.7) / 0.3));
 
         if (brightness <= 0) continue;
 
@@ -207,36 +189,24 @@ export default function ParticleImpactAnimation({
 
       // Particles follow the expanding shockwave.
       for (const p of particles) {
-        const spawn =
-          0.055 + p.ring * (0.3 / rings);
+        const spawn = 0.055 + p.ring * (0.3 / rings);
 
         if (progress < spawn) continue;
 
-        const age = clamp(
-          (progress - spawn) / (0.94 - spawn)
-        );
+        const age = clamp((progress - spawn) / (0.94 - spawn));
 
-        const fade =
-          1 - smooth((age - 0.68) / 0.32);
+        const fade = 1 - smooth((age - 0.68) / 0.32);
 
-        const alpha =
-          p.alpha *
-          smooth(age / 0.045) *
-          fade;
+        const alpha = p.alpha * smooth(age / 0.045) * fade;
 
         if (alpha <= 0) continue;
 
-        const turbulence =
-          p.offset * scale * (0.008 + age * 0.095);
+        const turbulence = p.offset * scale * (0.008 + age * 0.095);
 
-        const radius =
-          scale * (0.035 + age * 0.88) +
-          turbulence;
+        const radius = scale * (0.035 + age * 0.88) + turbulence;
 
         const angle =
-          p.angle +
-          Math.sin(progress * 12 + p.phase) *
-            0.025 * p.speed;
+          p.angle + Math.sin(progress * 12 + p.phase) * 0.025 * p.speed;
 
         const x = cx + Math.cos(angle) * radius;
         const y = cy + Math.sin(angle) * radius;
@@ -247,12 +217,7 @@ export default function ParticleImpactAnimation({
       }
 
       if (coreFade > 0) {
-        glow(
-          cx, cy,
-          scale * 0.075,
-          coreFade,
-          false
-        );
+        glow(cx, cy, scale * 0.075, coreFade, false);
       }
     }
 
@@ -262,78 +227,52 @@ export default function ParticleImpactAnimation({
       cx: number,
       cy: number,
       scale: number,
-      reducedMotion: boolean
+      reducedMotion: boolean,
     ) {
       // No energy impact or shockwave in this variant.
       // A calm core gradually materializes.
       const entrance = smooth(elapsedSeconds / 2);
-      const exit =
-        1 - smooth((progress - 0.94) / 0.06);
+      const exit = 1 - smooth((progress - 0.94) / 0.06);
 
       const pulse = reducedMotion
         ? 0.5
         : (Math.sin(elapsedSeconds * 1.4) + 1) / 2;
 
-      const brightness =
-        (0.35 + pulse * 0.16) * entrance * exit;
+      const brightness = (0.35 + pulse * 0.16) * entrance * exit;
 
       // Diffuse blue-violet halo.
-      glow(
-        cx, cy,
-        scale * (0.16 + pulse * 0.018),
-        brightness,
-        true
-      );
+      glow(cx, cy, scale * (0.16 + pulse * 0.018), brightness, true);
 
       // Small stable luminous core.
-      glow(
-        cx, cy,
-        scale * 0.90,
-        brightness * 1.85,
-        true
-      );
+      glow(cx, cy, scale * 0.9, brightness * 1.85, true);
 
       // Sparse, slowly drifting ambient particles.
       for (const p of particles) {
-        const drift = reducedMotion
-          ? 0
-          : elapsedSeconds * p.speed * 0.025;
+        const drift = reducedMotion ? 0 : elapsedSeconds * p.speed * 0.025;
 
         const angle = p.angle + drift;
 
         const wobble = reducedMotion
           ? 0
-          : Math.sin(
-              elapsedSeconds * 0.5 + p.phase
-            ) * 0.012;
+          : Math.sin(elapsedSeconds * 0.5 + p.phase) * 0.012;
 
-        const radius =
-          scale * (0.13 + p.radius * 0.78 + wobble);
+        const radius = scale * (0.13 + p.radius * 0.78 + wobble);
 
-        const x =
-          cx + Math.cos(angle) * radius;
-        const y =
-          cy + Math.sin(angle) * radius;
+        const x = cx + Math.cos(angle) * radius;
+        const y = cy + Math.sin(angle) * radius;
 
         const shimmer = reducedMotion
           ? 0.7
-          : 0.65 +
-            Math.sin(
-              elapsedSeconds * 1.7 + p.phase
-            ) * 0.25;
+          : 0.65 + Math.sin(elapsedSeconds * 1.7 + p.phase) * 0.25;
 
-        ctx!.globalAlpha =
-          p.alpha * shimmer * entrance * exit;
+        ctx!.globalAlpha = p.alpha * shimmer * entrance * exit;
 
         ctx!.fillStyle = p.color;
         ctx!.fillRect(x, y, p.size, p.size);
       }
     }
 
-    function render(
-      elapsedMs: number,
-      reducedMotion = false
-    ) {
+    function render(elapsedMs: number, reducedMotion = false) {
       if (!width || !height) return;
 
       const progress = clamp(elapsedMs / totalMs);
@@ -351,21 +290,9 @@ export default function ParticleImpactAnimation({
       ctx!.globalCompositeOperation = "lighter";
 
       if (negative) {
-        renderNegative(
-          elapsedSeconds,
-          progress,
-          cx,
-          cy,
-          scale,
-          reducedMotion
-        );
+        renderNegative(elapsedSeconds, progress, cx, cy, scale, reducedMotion);
       } else {
-        renderPositive(
-          progress,
-          cx,
-          cy,
-          scale
-        );
+        renderPositive(progress, cx, cy, scale);
       }
 
       ctx!.globalAlpha = 1;
@@ -378,24 +305,18 @@ export default function ParticleImpactAnimation({
       width = rect.width;
       height = rect.height;
 
-      const dpr = Math.min(
-        window.devicePixelRatio || 1,
-        2
-      );
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
       canvas!.width = Math.round(width * dpr);
       canvas!.height = Math.round(height * dpr);
 
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const elapsed = Math.max(
-        0,
-        performance.now() - startTime
-      );
+      const elapsed = Math.max(0, performance.now() - startTime);
 
       render(
         loop ? elapsed % totalMs : Math.min(elapsed, totalMs),
-        motion.matches
+        motion.matches,
       );
     }
 
@@ -405,9 +326,7 @@ export default function ParticleImpactAnimation({
       }
 
       const elapsed = Math.max(0, now - startTime);
-      const current = loop
-        ? elapsed % totalMs
-        : Math.min(elapsed, totalMs);
+      const current = loop ? elapsed % totalMs : Math.min(elapsed, totalMs);
 
       render(current);
 
@@ -419,12 +338,7 @@ export default function ParticleImpactAnimation({
     function startRendering() {
       cancelAnimationFrame(frameId);
 
-      if (
-        disposed ||
-        completed ||
-        document.hidden ||
-        motion.matches
-      ) {
+      if (disposed || completed || document.hidden || motion.matches) {
         return;
       }
 
@@ -452,32 +366,21 @@ export default function ParticleImpactAnimation({
       cancelAnimationFrame(frameId);
 
       if (motion.matches) {
-        render(
-          negative ? totalMs * 0.5 : totalMs * 0.4,
-          true
-        );
+        render(negative ? totalMs * 0.5 : totalMs * 0.4, true);
       } else {
         startRendering();
       }
     }
 
     const observer = new ResizeObserver(resize);
-    const motion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    );
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     observer.observe(canvas);
     resize();
 
-    document.addEventListener(
-      "visibilitychange",
-      handleVisibility
-    );
+    document.addEventListener("visibilitychange", handleVisibility);
 
-    motion.addEventListener(
-      "change",
-      handleMotion
-    );
+    motion.addEventListener("change", handleMotion);
 
     if (!loop) {
       completionTimer = setTimeout(complete, totalMs);
@@ -495,24 +398,11 @@ export default function ParticleImpactAnimation({
       clearTimeout(completionTimer);
       observer.disconnect();
 
-      document.removeEventListener(
-        "visibilitychange",
-        handleVisibility
-      );
+      document.removeEventListener("visibilitychange", handleVisibility);
 
-      motion.removeEventListener(
-        "change",
-        handleMotion
-      );
+      motion.removeEventListener("change", handleMotion);
     };
-  }, [
-    variant,
-    duration,
-    loop,
-    particleCount,
-    ringCount,
-    backgroundColor,
-  ]);
+  }, [variant, duration, loop, particleCount, ringCount, backgroundColor]);
 
   return (
     <canvas

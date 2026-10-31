@@ -1,4 +1,3 @@
-
 import styles from "./RadioanalysisLoader.module.css";
 
 interface RadioanalysisLoaderProps {

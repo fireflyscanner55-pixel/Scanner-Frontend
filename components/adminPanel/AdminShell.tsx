@@ -1,15 +1,10 @@
-
 "use client";
 
 import { useState, type ReactNode } from "react";
 import AdminSidebar from "./AdminSidebar";
 import AdminTopbar from "./AdminTopbar";
 
-export default function AdminShell({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function AdminShell({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -24,23 +19,15 @@ export default function AdminShell({
         />
       )}
 
-      <AdminSidebar
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
+      <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="min-w-0 lg:pl-64">
-        <AdminTopbar
-          onMenuClick={() => setSidebarOpen(true)}
-        />
-
+        <AdminTopbar onMenuClick={() => setSidebarOpen(true)} />
         <main
           id="admin-content"
           className="min-h-[calc(100vh-72px)] px-4 py-6 sm:px-6 lg:px-8"
         >
-          <div className="mx-auto w-full max-w-[1600px]">
-            {children}
-          </div>
+          <div className="mx-auto w-full max-w-[1600px]">{children}</div>
         </main>
       </div>
     </div>

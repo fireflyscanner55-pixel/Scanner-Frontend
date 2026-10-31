@@ -20,7 +20,7 @@ const twilioClient = twilio(accountSid, authToken);
 
 export async function sendOtpSms(
   mobileNumber: string,
-//   otp: string
+  //   otp: string
 ) {
   const message = await twilioClient.messages.create({
     // body: `Your verification code is ${otp}. It expires in 5 minutes. Do not share it. Test message from Twilio.`,

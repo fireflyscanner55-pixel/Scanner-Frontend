@@ -10,17 +10,13 @@ import {
   Tooltip,
 } from "recharts";
 
-import type {
-  RadarChartPoint,
-} from "@/types/dashboard";
+import type { RadarChartPoint } from "@/types/dashboard";
 
 type RadarAnalysisChartProps = {
   data: RadarChartPoint[];
 };
 
-export default function RadarAnalysisChart({
-  data,
-}: RadarAnalysisChartProps) {
+export default function RadarAnalysisChart({ data }: RadarAnalysisChartProps) {
   return (
     <section
       className="
@@ -34,14 +30,8 @@ export default function RadarAnalysisChart({
       "
     >
       <div className="h-[300px] w-full sm:h-[350px] lg:h-[400px]">
-        <ResponsiveContainer
-          width="100%"
-          height="100%"
-        >
-          <RadarChart
-            data={data}
-            outerRadius="68%"
-          >
+        <ResponsiveContainer width="100%" height="100%">
+          <RadarChart data={data} outerRadius="68%">
             <PolarGrid />
 
             <PolarAngleAxis

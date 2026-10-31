@@ -1,22 +1,14 @@
 "use client";
 
-import {
-  Area,
-  AreaChart,
-  ResponsiveContainer,
-} from "recharts";
+import { Area, AreaChart, ResponsiveContainer } from "recharts";
 
-import type {
-  ResultCardData,
-} from "@/types/dashboard";
+import type { ResultCardData } from "@/types/dashboard";
 
 type ResultCardProps = {
   chart: ResultCardData;
 };
 
-export default function ResultCard({
-  chart,
-}: ResultCardProps) {
+export default function ResultCard({ chart }: ResultCardProps) {
   return (
     <article
       className="
@@ -40,10 +32,7 @@ export default function ResultCard({
       {/* Chart */}
 
       <div className="h-24 w-full sm:h-28">
-        <ResponsiveContainer
-          width="100%"
-          height="100%"
-        >
+        <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={chart.data}
             margin={{
@@ -61,17 +50,9 @@ export default function ResultCard({
                 x2="0"
                 y2="1"
               >
-                <stop
-                  offset="0%"
-                  stopColor={chart.color}
-                  stopOpacity={0.95}
-                />
+                <stop offset="0%" stopColor={chart.color} stopOpacity={0.95} />
 
-                <stop
-                  offset="100%"
-                  stopColor={chart.color}
-                  stopOpacity={0.8}
-                />
+                <stop offset="100%" stopColor={chart.color} stopOpacity={0.8} />
               </linearGradient>
             </defs>
 

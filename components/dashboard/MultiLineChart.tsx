@@ -17,9 +17,7 @@ type MultiLineChartProps = {
   data: LineChartPoint[];
 };
 
-export default function MultiLineChart({
-  data,
-}: MultiLineChartProps) {
+export default function MultiLineChart({ data }: MultiLineChartProps) {
   return (
     <section
       className="

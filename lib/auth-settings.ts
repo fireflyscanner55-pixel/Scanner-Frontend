@@ -29,7 +29,7 @@ export async function getAuthSettings(): Promise<AuthSettings> {
 }
 
 export async function saveAuthSettings(
-  settings: AuthSettings
+  settings: AuthSettings,
 ): Promise<AuthSettings> {
   await fs.mkdir(path.dirname(settingsFile), { recursive: true });
   await fs.writeFile(settingsFile, JSON.stringify(settings, null, 2), "utf8");

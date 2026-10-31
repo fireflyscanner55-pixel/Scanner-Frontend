@@ -119,7 +119,7 @@ export interface UserScenarioIsotope {
   name: string;
   symbol?: string;
   status: "stable" | "unstable";
-  energy?:string;
+  energy?: string;
   description?: string;
 }
 

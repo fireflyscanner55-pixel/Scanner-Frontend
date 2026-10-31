@@ -63,7 +63,6 @@
 
 // const upper =
 //   typeof max === "number" ? max : dataMax;
-  
 
 //   const range = Math.max(upper - lower, 0.0001);
 
@@ -75,7 +74,7 @@
 
 //   // New readings enter from the right.
 //   // Previous readings shift towards the left.
-  
+
 //   const x =
 //     width -
 //     rightPad -
@@ -233,7 +232,6 @@
 //   );
 // }
 
-
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -327,14 +325,10 @@ export default function CompactTrendChart({
           : 1;
 
     const configuredMin =
-      typeof min === "number" && Number.isFinite(min)
-        ? min
-        : undefined;
+      typeof min === "number" && Number.isFinite(min) ? min : undefined;
 
     const configuredMax =
-      typeof max === "number" && Number.isFinite(max)
-        ? max
-        : undefined;
+      typeof max === "number" && Number.isFinite(max) ? max : undefined;
 
     let nextLower = configuredMin ?? observedMin;
     let nextUpper = configuredMax ?? observedMax;
@@ -344,7 +338,7 @@ export default function CompactTrendChart({
       const center = nextLower;
       const margin = Math.max(
         Math.abs(center) * 0.05,
-        precision > 0 ? 0.001 : 1
+        precision > 0 ? 0.001 : 1,
       );
 
       nextLower = center - margin;
@@ -369,23 +363,14 @@ export default function CompactTrendChart({
    * stretching as the history grows.
    */
   const points = useMemo(() => {
-    const spacing =
-      plotWidth / (safeMaxPoints - 1);
+    const spacing = plotWidth / (safeMaxPoints - 1);
 
     return history.map((item, index) => {
-      const x =
-        width -
-        rightPad -
-        (history.length - 1 - index) * spacing;
+      const x = width - rightPad - (history.length - 1 - index) * spacing;
 
-      const normalized = Math.max(
-        0,
-        Math.min(1, (item.value - lower) / range)
-      );
+      const normalized = Math.max(0, Math.min(1, (item.value - lower) / range));
 
-      const y =
-        topPad +
-        (1 - normalized) * plotHeight;
+      const y = topPad + (1 - normalized) * plotHeight;
 
       return { x, y };
     });
@@ -408,7 +393,7 @@ export default function CompactTrendChart({
     return points
       .map(
         (point, index) =>
-          `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`
+          `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`,
       )
       .join(" ");
   }, [points]);
@@ -416,9 +401,7 @@ export default function CompactTrendChart({
   /*
    * Display values.
    */
-  const latestValue = Number.isFinite(value)
-    ? value.toFixed(precision)
-    : "—";
+  const latestValue = Number.isFinite(value) ? value.toFixed(precision) : "—";
 
   const minLabel = lower.toFixed(precision);
 
@@ -431,10 +414,7 @@ export default function CompactTrendChart({
     const first = history[0].timestamp;
     const last = history[history.length - 1].timestamp;
 
-    return Math.max(
-      0,
-      Math.round((last - first) / 1000)
-    );
+    return Math.max(0, Math.round((last - first) / 1000));
   }, [history]);
 
   return (
@@ -448,19 +428,11 @@ export default function CompactTrendChart({
           aria-label={`Live trend chart for ${unit}`}
         >
           {/* Original background */}
-          <rect
-            x="0"
-            y="0"
-            width={width}
-            height={height}
-            fill="#a56529"
-          />
+          <rect x="0" y="0" width={width} height={height} fill="#a56529" />
 
           {/* 16 vertical gridlines */}
           {Array.from({ length: 64 }).map((_, index) => {
-            const x =
-              leftPad +
-              (index / 60) * plotWidth;
+            const x = leftPad + (index / 60) * plotWidth;
 
             return (
               <line
@@ -477,9 +449,7 @@ export default function CompactTrendChart({
 
           {/* 8 horizontal gridlines */}
           {Array.from({ length: 64 }).map((_, index) => {
-            const y =
-              topPad +
-              (index / 28) * plotHeight;
+            const y = topPad + (index / 28) * plotHeight;
 
             return (
               <line
@@ -510,22 +480,12 @@ export default function CompactTrendChart({
           )}
 
           {/* Minimum/reference label */}
-          <text
-            x="6"
-            y={height - bottomPad - 2}
-            fontSize="9"
-            fill="#060606"
-          >
+          <text x="6" y={height - bottomPad - 2} fontSize="9" fill="#060606">
             {minLabel}
           </text>
 
           {/* Elapsed time */}
-          <text
-            x="6"
-            y={height - 2}
-            fontSize="10"
-            fill="#6b7280"
-          >
+          <text x="6" y={height - 2} fontSize="10" fill="#6b7280">
             {elapsedSeconds || windowSeconds}s
           </text>
 
@@ -541,12 +501,7 @@ export default function CompactTrendChart({
           </text>
 
           {/* Right-side time label */}
-          <text
-            x={width - 18}
-            y={height - 2}
-            fontSize="9"
-            fill="#6b7280"
-          >
+          <text x={width - 18} y={height - 2} fontSize="9" fill="#6b7280">
             0s
           </text>
         </svg>

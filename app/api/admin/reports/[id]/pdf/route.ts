@@ -1,20 +1,15 @@
-
 import { backendFetch } from "@/lib/backend";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
 };
 
-export async function GET(
-  request: Request,
-  { params }: RouteContext
-) {
+export async function GET(request: Request, { params }: RouteContext) {
   try {
     const { id } = await params;
 
     const url = new URL(request.url);
-    const download =
-      url.searchParams.get("download") === "1";
+    const download = url.searchParams.get("download") === "1";
 
     const path =
       `/api/admin/reports/${encodeURIComponent(id)}/pdf` +
@@ -37,22 +32,18 @@ export async function GET(
           message: "Unable to generate PDF report",
           details: errorText.slice(0, 500),
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
-    const contentType =
-      response.headers.get("content-type") ?? "";
+    const contentType = response.headers.get("content-type") ?? "";
 
     if (!contentType.includes("application/pdf")) {
-      console.error(
-        "Unexpected PDF response:",
-        contentType
-      );
+      console.error("Unexpected PDF response:", contentType);
 
       return Response.json(
         { message: "Backend did not return a PDF" },
-        { status: 502 }
+        { status: 502 },
       );
     }
 
@@ -71,9 +62,6 @@ export async function GET(
   } catch (error) {
     console.error("PDF proxy failed:", error);
 
-    return Response.json(
-      { message: "Internal server error" },
-      { status: 500 }
-    );
+    return Response.json({ message: "Internal server error" }, { status: 500 });
   }
 }

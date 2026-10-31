@@ -1,14 +1,10 @@
-import type {
-  TestResult,
-} from "@/types/dashboard";
+import type { TestResult } from "@/types/dashboard";
 
 type ResultsTableProps = {
   results: TestResult[];
 };
 
-export default function ResultsTable({
-  results,
-}: ResultsTableProps) {
+export default function ResultsTable({ results }: ResultsTableProps) {
   return (
     <section className="w-full">
       <div

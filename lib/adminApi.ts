@@ -1,8 +1,7 @@
-
 export class AdminApiError extends Error {
   constructor(
     message: string,
-    public status: number
+    public status: number,
   ) {
     super(message);
     this.name = "AdminApiError";
@@ -22,7 +21,7 @@ type ApiEnvelope<T> = {
 
 export async function adminRequest<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   const response = await fetch(endpoint, {
     ...options,
@@ -37,18 +36,16 @@ export async function adminRequest<T>(
     return undefined as T;
   }
 
-  const contentType =
-    response.headers.get("content-type") ?? "";
+  const contentType = response.headers.get("content-type") ?? "";
 
   if (!contentType.includes("application/json")) {
     throw new AdminApiError(
       `Unexpected response format from ${endpoint}`,
-      response.status
+      response.status,
     );
   }
 
-  const payload: ApiEnvelope<T> | T =
-    await response.json();
+  const payload: ApiEnvelope<T> | T = await response.json();
 
   if (!response.ok) {
     const message =
@@ -69,19 +66,15 @@ export async function adminRequest<T>(
     payload.success === false
   ) {
     throw new AdminApiError(
-      ("message" in payload && payload.message) ||
-        "Operation failed",
-      response.status
+      ("message" in payload && payload.message) || "Operation failed",
+      response.status,
     );
   }
 
   return payload as T;
 }
 
-export function extractList<T>(
-  payload: unknown,
-  keys: string[]
-): T[] {
+export function extractList<T>(payload: unknown, keys: string[]): T[] {
   if (Array.isArray(payload)) {
     return payload as T[];
   }
@@ -100,14 +93,8 @@ export function extractList<T>(
     }
 
     if (value && typeof value === "object") {
-      for (const nestedKey of [
-        "items",
-        "results",
-        ...keys,
-      ]) {
-        const nested = (
-          value as Record<string, unknown>
-        )[nestedKey];
+      for (const nestedKey of ["items", "results", ...keys]) {
+        const nested = (value as Record<string, unknown>)[nestedKey];
 
         if (Array.isArray(nested)) {
           return nested as T[];
@@ -116,14 +103,10 @@ export function extractList<T>(
     }
   }
 
-  throw new Error(
-    "Unable to identify list in API response"
-  );
+  throw new Error("Unable to identify list in API response");
 }
 
-export function extractRecord<T>(
-  payload: unknown
-): T {
+export function extractRecord<T>(payload: unknown): T {
   if (
     payload &&
     typeof payload === "object" &&

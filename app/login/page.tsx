@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 
 type LoginStep = "credentials" | "mobile" | "otp";
 
-
 export default function LoginPage() {
   const [step, setStep] = useState<LoginStep>("credentials");
 
@@ -42,102 +41,93 @@ export default function LoginPage() {
   // STEP 1: USERNAME + PASSWORD
   // -----------------------------
   const handleCredentialsSubmit = async (
-  event: SubmitEvent<HTMLFormElement>
-) => {
-  event.preventDefault();
-  setErrorMessage("");
+    event: SubmitEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    setErrorMessage("");
 
-  if (!username.trim() || !password.trim()) {
-    setErrorMessage(
-      "Please enter your username and password."
-    );
-    return;
-  }
-
-  setIsLoading(true);
-
-  try {
-    const response = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username,
-        password,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok || !data.success) {
-      throw new Error(
-        data.message || "Unable to verify credentials."
-      );
-    }
-
-    /*
-     * OTP is disabled for this user.
-     *
-     * The login API has already created the
-     * authenticated session cookie.
-     */
-    if (data.requiresOtp === false) {
-      router.push(data.role === "admin" ? "/admin" : "/scan");
-      router.refresh();
+    if (!username.trim() || !password.trim()) {
+      setErrorMessage("Please enter your username and password.");
       return;
     }
 
-    /*
-     * OTP is enabled.
-     *
-     * Continue with the existing mobile → OTP flow.
-     */
-    if (!data.challengeToken) {
-      throw new Error(
-        "Unable to start OTP verification."
-      );
-    }
+    setIsLoading(true);
 
-    setChallengeToken(data.challengeToken);
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
 
-    /*
-     * Use the phone number returned by the user
-     * record when available.
-     */
-    if (data.phone) {
-      const normalizedPhone =
-        String(data.phone).replace(/\D/g, "");
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Unable to verify credentials.");
+      }
 
       /*
-       * The existing UI expects the 10-digit
-       * Indian mobile number.
+       * OTP is disabled for this user.
+       *
+       * The login API has already created the
+       * authenticated session cookie.
        */
-      setMobileNumber(
-        normalizedPhone.length === 10
-          ? normalizedPhone
-          : normalizedPhone.slice(-10)
-      );
-    }
+      if (data.requiresOtp === false) {
+        router.push(data.role === "admin" ? "/admin" : "/scan");
+        router.refresh();
+        return;
+      }
 
-    setStep("mobile");
-  } catch (error) {
-    setErrorMessage(
-      error instanceof Error
-        ? error.message
-        : "Unable to verify your credentials."
-    );
-  } finally {
-    setIsLoading(false);
-  }
-};
+      /*
+       * OTP is enabled.
+       *
+       * Continue with the existing mobile → OTP flow.
+       */
+      if (!data.challengeToken) {
+        throw new Error("Unable to start OTP verification.");
+      }
+
+      setChallengeToken(data.challengeToken);
+
+      /*
+       * Use the phone number returned by the user
+       * record when available.
+       */
+      if (data.phone) {
+        const normalizedPhone = String(data.phone).replace(/\D/g, "");
+
+        /*
+         * The existing UI expects the 10-digit
+         * Indian mobile number.
+         */
+        setMobileNumber(
+          normalizedPhone.length === 10
+            ? normalizedPhone
+            : normalizedPhone.slice(-10),
+        );
+      }
+
+      setStep("mobile");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Unable to verify your credentials.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // -----------------------------
   // STEP 2: MOBILE NUMBER
   // -----------------------------
-  const handleMobileSubmit = async (
-    event: SubmitEvent<HTMLFormElement>
-  ) => {
+  const handleMobileSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage("");
 
@@ -150,39 +140,37 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-  const response = await fetch("/api/auth/send-otp", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      mobileNumber,
-      challengeToken,
-    }),
-  });
+      const response = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mobileNumber,
+          challengeToken,
+        }),
+      });
 
-  const data = await response.json();
+      const data = await response.json();
 
-  if (!response.ok || !data.success) {
-    throw new Error(data.message || "Unable to send OTP.");
-  }
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Unable to send OTP.");
+      }
 
-  setResendTimer(30);
-  setOtp(["", "", "", "", "", ""]);
-  setStep("otp");
+      setResendTimer(30);
+      setOtp(["", "", "", "", "", ""]);
+      setStep("otp");
 
-  setTimeout(() => {
-    otpRefs.current[0]?.focus();
-  }, 100);
-} catch (error) {
-  setErrorMessage(
-    error instanceof Error
-      ? error.message
-      : "Unable to send OTP."
-  );
-} finally {
-  setIsLoading(false);
-}
+      setTimeout(() => {
+        otpRefs.current[0]?.focus();
+      }, 100);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Unable to send OTP.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // -----------------------------
@@ -220,20 +208,14 @@ export default function LoginPage() {
 
   const handleOtpKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>,
-    index: number
+    index: number,
   ) => {
-    if (
-      event.key === "Backspace" &&
-      !otp[index] &&
-      index > 0
-    ) {
+    if (event.key === "Backspace" && !otp[index] && index > 0) {
       otpRefs.current[index - 1]?.focus();
     }
   };
 
-  const handleOtpPaste = (
-    event: React.ClipboardEvent<HTMLInputElement>
-  ) => {
+  const handleOtpPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
     event.preventDefault();
 
     const pastedData = event.clipboardData
@@ -256,9 +238,7 @@ export default function LoginPage() {
     otpRefs.current[focusIndex]?.focus();
   };
 
-  const handleOtpSubmit = async (
-    event: SubmitEvent<HTMLFormElement>
-  ) => {
+  const handleOtpSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage("");
 
@@ -271,36 +251,34 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
-  try {
-  const response = await fetch("/api/auth/verify-otp", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      mobileNumber,
-      otp: enteredOtp,
-      challengeToken,
-    }),
-  });
+    try {
+      const response = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mobileNumber,
+          otp: enteredOtp,
+          challengeToken,
+        }),
+      });
 
-  const data = await response.json();
+      const data = await response.json();
 
-  if (!response.ok || !data.success) {
-    throw new Error(data.message || "Invalid OTP.");
-  }
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Invalid OTP.");
+      }
 
-  router.push(data.role === "admin" ? "/admin" : "/scan");
-  router.refresh();
-} catch (error) {
-  setErrorMessage(
-    error instanceof Error
-      ? error.message
-      : "Unable to verify OTP."
-  );
-} finally {
-  setIsLoading(false);
-}
+      router.push(data.role === "admin" ? "/admin" : "/scan");
+      router.refresh();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Unable to verify OTP.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // -----------------------------
@@ -313,42 +291,39 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-  const response = await fetch("/api/auth/send-otp", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      mobileNumber,
-      challengeToken,
-    }),
-  });
+      const response = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mobileNumber,
+          challengeToken,
+        }),
+      });
 
-  const data = await response.json();
+      const data = await response.json();
 
-  if (!response.ok || !data.success) {
-    throw new Error(data.message || "Unable to resend OTP.");
-  }
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Unable to resend OTP.");
+      }
 
-  setOtp(["", "", "", "", "", ""]);
-  setResendTimer(30);
+      setOtp(["", "", "", "", "", ""]);
+      setResendTimer(30);
 
-  setTimeout(() => {
-    otpRefs.current[0]?.focus();
-  }, 100);
-} catch (error) {
-  setErrorMessage(
-    error instanceof Error
-      ? error.message
-      : "Unable to resend OTP."
-  );
-} finally {
-  setIsLoading(false);
-}
+      setTimeout(() => {
+        otpRefs.current[0]?.focus();
+      }, 100);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Unable to resend OTP.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const stepNumber =
-    step === "credentials" ? 1 : step === "mobile" ? 2 : 3;
+  const stepNumber = step === "credentials" ? 1 : step === "mobile" ? 2 : 3;
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-black">
@@ -370,9 +345,8 @@ export default function LoginPage() {
       {/* Main content */}
       <div className="relative z-10 min-h-screen w-full">
         {/* Animated Logo */}
-        
+
         <div className="absolute left-5 top-5 z-20 sm:left-8 sm:top-8 lg:left-20 lg:top-10">
-          
           <Image
             className="h-auto animate-spin ease-linear [animation-duration:15s]"
             src="/assets/logo_1.png"
@@ -380,33 +354,31 @@ export default function LoginPage() {
             width={120}
             height={120}
           />
-          
-          
         </div>
         <div className="w-full overflow-hidden border-y-2 border-rgba(48, 48, 48)">
-      {/* 1. We inject the keyframes definition directly into a hidden style tag */}
-      <style>{`
+          {/* 1. We inject the keyframes definition directly into a hidden style tag */}
+          <style>{`
         @keyframes stripeMove {
           0% { transform: translateX(-50%); }
           100% { transform: translateX(0); }
         }
       `}</style>
 
-      {/* 2. We apply the animation name using inline styles instead of Tailwind brackets */}
-      <div 
-        className="h-8 w-[200%]"
-        style={{
-          animation: 'stripeMove 30s linear infinite',
-          backgroundImage: `repeating-linear-gradient(
+          {/* 2. We apply the animation name using inline styles instead of Tailwind brackets */}
+          <div
+            className="h-8 w-[200%]"
+            style={{
+              animation: "stripeMove 30s linear infinite",
+              backgroundImage: `repeating-linear-gradient(
             45deg,
             #facc15,       
             #facc15 20px,
             #303030 20px,
             #303030 40px
-          )`
-        }}
-      />
-    </div>
+          )`,
+            }}
+          />
+        </div>
 
         {/* Page content */}
         <section
@@ -483,10 +455,7 @@ export default function LoginPage() {
                 STEP 1: USERNAME + PASSWORD
             ====================================== */}
             {step === "credentials" && (
-              <form
-                onSubmit={handleCredentialsSubmit}
-                className="space-y-5"
-              >
+              <form onSubmit={handleCredentialsSubmit} className="space-y-5">
                 <div className="mb-8 text-center">
                   <p className="mb-3 text-xs font-medium uppercase tracking-[0.35em] text-white/50">
                     Step 1 of 3
@@ -514,9 +483,7 @@ export default function LoginPage() {
                     id="username"
                     type="text"
                     value={username}
-                    onChange={(event) =>
-                      setUsername(event.target.value)
-                    }
+                    onChange={(event) => setUsername(event.target.value)}
                     placeholder="Enter your username"
                     autoComplete="username"
                     className="
@@ -548,9 +515,7 @@ export default function LoginPage() {
                       id="password"
                       type={showPassword ? "text" : "password"}
                       value={password}
-                      onChange={(event) =>
-                        setPassword(event.target.value)
-                      }
+                      onChange={(event) => setPassword(event.target.value)}
                       placeholder="Enter your password"
                       autoComplete="current-password"
                       className="
@@ -570,13 +535,9 @@ export default function LoginPage() {
                     <button
                       type="button"
                       aria-label={
-                        showPassword
-                          ? "Hide password"
-                          : "Show password"
+                        showPassword ? "Hide password" : "Show password"
                       }
-                      onClick={() =>
-                        setShowPassword((previous) => !previous)
-                      }
+                      onClick={() => setShowPassword((previous) => !previous)}
                       className="
                         absolute right-3 top-1/2 -translate-y-1/2
                         p-2 text-white/40
@@ -610,10 +571,7 @@ export default function LoginPage() {
                 STEP 2: MOBILE NUMBER
             ====================================== */}
             {step === "mobile" && (
-              <form
-                onSubmit={handleMobileSubmit}
-                className="space-y-5"
-              >
+              <form onSubmit={handleMobileSubmit} className="space-y-5">
                 <div className="mb-8 text-center">
                   <p className="mb-3 text-xs font-medium uppercase tracking-[0.35em] text-white/50">
                     Step 2 of 3
@@ -648,9 +606,7 @@ export default function LoginPage() {
                       maxLength={10}
                       value={mobileNumber}
                       onChange={(event) =>
-                        setMobileNumber(
-                          event.target.value.replace(/\D/g, "")
-                        )
+                        setMobileNumber(event.target.value.replace(/\D/g, ""))
                       }
                       placeholder="9876543210"
                       autoComplete="tel"
@@ -701,10 +657,7 @@ export default function LoginPage() {
                 STEP 3: OTP VERIFICATION
             ====================================== */}
             {step === "otp" && (
-              <form
-                onSubmit={handleOtpSubmit}
-                className="space-y-6"
-              >
+              <form onSubmit={handleOtpSubmit} className="space-y-6">
                 <div className="text-center">
                   <p className="mb-3 text-xs font-medium uppercase tracking-[0.35em] text-white/50">
                     Step 3 of 3
@@ -738,9 +691,7 @@ export default function LoginPage() {
                       onChange={(event) =>
                         handleOtpChange(event.target.value, index)
                       }
-                      onKeyDown={(event) =>
-                        handleOtpKeyDown(event, index)
-                      }
+                      onKeyDown={(event) => handleOtpKeyDown(event, index)}
                       onPaste={handleOtpPaste}
                       aria-label={`OTP digit ${index + 1}`}
                       className="

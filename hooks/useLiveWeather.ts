@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -15,8 +14,7 @@ export interface LiveWeather {
 }
 
 export function useLiveWeather(location: string) {
-  const [weather, setWeather] =
-    useState<LiveWeather | null>(null);
+  const [weather, setWeather] = useState<LiveWeather | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -40,22 +38,19 @@ export function useLiveWeather(location: string) {
 
       try {
         const response = await fetch(
-          `/api/weather?location=${encodeURIComponent(
-            configuredLocation
-          )}`,
+          `/api/weather?location=${encodeURIComponent(configuredLocation)}`,
           {
             method: "GET",
             cache: "no-store",
             signal: controller.signal,
-          }
+          },
         );
 
-        const contentType =
-          response.headers.get("content-type") ?? "";
+        const contentType = response.headers.get("content-type") ?? "";
 
         if (!contentType.includes("application/json")) {
           throw new Error(
-            `Weather endpoint returned non-JSON response (${response.status}). Check /api/weather.`
+            `Weather endpoint returned non-JSON response (${response.status}). Check /api/weather.`,
           );
         }
 
@@ -63,8 +58,7 @@ export function useLiveWeather(location: string) {
 
         if (!response.ok) {
           throw new Error(
-            payload.message ??
-              `Weather request failed (${response.status})`
+            payload.message ?? `Weather request failed (${response.status})`,
           );
         }
 
@@ -83,9 +77,7 @@ export function useLiveWeather(location: string) {
 
         setWeather({
           location:
-            data.resolvedLocation ??
-            data.location ??
-            configuredLocation,
+            data.resolvedLocation ?? data.location ?? configuredLocation,
           temperature: data.temperature,
           pressure: data.pressure,
           humidity: data.humidity,
@@ -97,18 +89,13 @@ export function useLiveWeather(location: string) {
 
         setError("");
       } catch (cause) {
-        if (
-          cancelled ||
-          controller.signal.aborted
-        ) {
+        if (cancelled || controller.signal.aborted) {
           return;
         }
 
         setWeather(null);
         setError(
-          cause instanceof Error
-            ? cause.message
-            : "Unable to retrieve weather"
+          cause instanceof Error ? cause.message : "Unable to retrieve weather",
         );
       } finally {
         if (!cancelled && !controller.signal.aborted) {
@@ -121,7 +108,7 @@ export function useLiveWeather(location: string) {
 
     const interval = window.setInterval(
       () => void refreshWeather(),
-      5 * 60 * 1000
+      5 * 60 * 1000,
     );
 
     return () => {

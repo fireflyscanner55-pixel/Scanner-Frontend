@@ -1,4 +1,3 @@
-
 import type { LucideIcon } from "lucide-react";
 
 type AdminStatCardProps = {
@@ -29,9 +28,7 @@ export default function AdminStatCard({
     <article className="rounded-2xl border border-slate-800 bg-[#101f33] p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-medium text-slate-400">
-            {title}
-          </p>
+          <p className="text-sm font-medium text-slate-400">{title}</p>
           {loading ? (
             <div className="mt-3 h-9 w-20 animate-pulse rounded bg-slate-700" />
           ) : (
@@ -48,10 +45,7 @@ export default function AdminStatCard({
         </div>
       </div>
 
-      <p className="mt-4 text-xs text-slate-500">
-        {description}
-      </p>
+      <p className="mt-4 text-xs text-slate-500">{description}</p>
     </article>
   );
 }
- 

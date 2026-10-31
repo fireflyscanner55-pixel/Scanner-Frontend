@@ -1,6 +1,4 @@
-
 "use client";
-
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
@@ -18,10 +16,7 @@ import {
 
 import AdminStatCard from "@/components/adminPanel/AdminStatCard";
 
-import type {
-  RadioUser,
-  UserScenarioConfig,
-} from "@/types/radioanalysis";
+import type { RadioUser, UserScenarioConfig } from "@/types/radioanalysis";
 
 type AuditEntry = {
   _id?: string;
@@ -43,32 +38,28 @@ const panel =
 
 async function requestArray<T>(
   endpoint: string,
-  signal: AbortSignal
+  signal: AbortSignal,
 ): Promise<T[]> {
   const response = await fetch(endpoint, {
     cache: "no-store",
     signal,
   });
 
-  const contentType =
-    response.headers.get("content-type") ?? "";
+  const contentType = response.headers.get("content-type") ?? "";
 
   if (!contentType.toLowerCase().includes("application/json")) {
     const body = await response.text();
 
-    console.warn(
-  `[Admin API] ${endpoint}`,
-  {
-    status: response.status,
-    redirected: response.redirected,
-    finalUrl: response.url,
-    contentType,
-    preview: body.slice(0, 300),
-  }
-);
+    console.warn(`[Admin API] ${endpoint}`, {
+      status: response.status,
+      redirected: response.redirected,
+      finalUrl: response.url,
+      contentType,
+      preview: body.slice(0, 300),
+    });
 
     throw new Error(
-      `${endpoint} returned ${response.status} (${contentType || "unknown content type"}) instead of JSON. Check API routing or authentication.`
+      `${endpoint} returned ${response.status} (${contentType || "unknown content type"}) instead of JSON. Check API routing or authentication.`,
     );
   }
 
@@ -93,22 +84,14 @@ async function requestArray<T>(
   if (payload && typeof payload === "object") {
     const object = payload as Record<string, unknown>;
 
-    for (const key of [
-      "data",
-      "users",
-      "scenarios",
-      "audit",
-      "logs",
-    ]) {
+    for (const key of ["data", "users", "scenarios", "audit", "logs"]) {
       if (Array.isArray(object[key])) {
         return object[key] as T[];
       }
     }
   }
 
-  throw new Error(
-    `${endpoint}: Unexpected JSON response structure`
-  );
+  throw new Error(`${endpoint}: Unexpected JSON response structure`);
 }
 
 export default function AdminDashboardPage() {
@@ -129,18 +112,12 @@ export default function AdminDashboardPage() {
     const load = async () => {
       try {
         const [users, scenarios, audit] = await Promise.all([
-          requestArray<RadioUser>(
-            "/api/admin/users",
-            controller.signal
-          ),
+          requestArray<RadioUser>("/api/admin/users", controller.signal),
           requestArray<UserScenarioConfig>(
             "/api/admin/scenarios",
-            controller.signal
+            controller.signal,
           ),
-          requestArray<AuditEntry>(
-            "/api/admin/audit",
-            controller.signal
-          ),
+          requestArray<AuditEntry>("/api/admin/audit", controller.signal),
         ]);
 
         if (controller.signal.aborted) return;
@@ -152,9 +129,7 @@ export default function AdminDashboardPage() {
         if (controller.signal.aborted) return;
 
         setError(
-          cause instanceof Error
-            ? cause.message
-            : "Unable to load dashboard"
+          cause instanceof Error ? cause.message : "Unable to load dashboard",
         );
       } finally {
         if (!controller.signal.aborted) {
@@ -174,24 +149,16 @@ export default function AdminDashboardPage() {
   }, []);
 
   const stats = useMemo(() => {
-    const regularUsers = data.users.filter(
-      (user) => user.role === "user"
-    );
+    const regularUsers = data.users.filter((user) => user.role === "user");
 
     return {
       totalUsers: regularUsers.length,
-      activeUsers: regularUsers.filter(
-        (user) => user.active
-      ).length,
+      activeUsers: regularUsers.filter((user) => user.active).length,
       positive: data.scenarios.filter(
-        (scenario) =>
-          scenario.enabled &&
-          scenario.scenarioType === "positive"
+        (scenario) => scenario.enabled && scenario.scenarioType === "positive",
       ).length,
       negative: data.scenarios.filter(
-        (scenario) =>
-          scenario.enabled &&
-          scenario.scenarioType === "negative"
+        (scenario) => scenario.enabled && scenario.scenarioType === "negative",
       ).length,
       configured: data.scenarios.length,
     };
@@ -199,9 +166,7 @@ export default function AdminDashboardPage() {
 
   const totalEnabled = stats.positive + stats.negative;
   const positivePct =
-    totalEnabled > 0
-      ? (stats.positive / totalEnabled) * 100
-      : 0;
+    totalEnabled > 0 ? (stats.positive / totalEnabled) * 100 : 0;
 
   const recentAudit = useMemo(
     () =>
@@ -209,10 +174,10 @@ export default function AdminDashboardPage() {
         .sort(
           (a, b) =>
             new Date(b.createdAt ?? 0).getTime() -
-            new Date(a.createdAt ?? 0).getTime()
+            new Date(a.createdAt ?? 0).getTime(),
         )
         .slice(0, 5),
-    [data.audit]
+    [data.audit],
   );
 
   return (
@@ -234,10 +199,7 @@ export default function AdminDashboardPage() {
           disabled={loading}
           className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-700 disabled:opacity-50"
         >
-          <RefreshCw
-            size={16}
-            className={loading ? "animate-spin" : ""}
-          />
+          <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
           Refresh
         </button>
       </div>
@@ -301,17 +263,12 @@ export default function AdminDashboardPage() {
         <section className={`${panel} xl:col-span-3`}>
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-base font-semibold">
-                Scenario Distribution
-              </h2>
+              <h2 className="text-base font-semibold">Scenario Distribution</h2>
               <p className="mt-1 text-xs text-slate-400">
                 Breakdown of enabled scenario assignments
               </p>
             </div>
-            <Settings2
-              size={20}
-              className="text-slate-500"
-            />
+            <Settings2 size={20} className="text-slate-500" />
           </div>
 
           <div className="mt-7">
@@ -319,9 +276,7 @@ export default function AdminDashboardPage() {
               <span className="text-3xl font-bold">
                 {loading ? "—" : totalEnabled}
               </span>
-              <span className="text-xs text-slate-400">
-                enabled scenarios
-              </span>
+              <span className="text-xs text-slate-400">enabled scenarios</span>
             </div>
 
             <div className="flex h-3 overflow-hidden rounded-full bg-slate-800">
@@ -345,9 +300,7 @@ export default function AdminDashboardPage() {
                   <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
                   Positive
                 </p>
-                <p className="mt-2 text-xl font-semibold">
-                  {stats.positive}
-                </p>
+                <p className="mt-2 text-xl font-semibold">{stats.positive}</p>
               </div>
 
               <div>
@@ -355,23 +308,19 @@ export default function AdminDashboardPage() {
                   <span className="h-2.5 w-2.5 rounded-full bg-purple-500" />
                   Negative
                 </p>
-                <p className="mt-2 text-xl font-semibold">
-                  {stats.negative}
-                </p>
+                <p className="mt-2 text-xl font-semibold">{stats.negative}</p>
               </div>
             </div>
 
             <p className="mt-5 text-xs text-slate-500">
-              {stats.configured} total saved scenario records,
-              including disabled assignments.
+              {stats.configured} total saved scenario records, including
+              disabled assignments.
             </p>
           </div>
         </section>
 
         <section className={`${panel} xl:col-span-2`}>
-          <h2 className="text-base font-semibold">
-            Quick Actions
-          </h2>
+          <h2 className="text-base font-semibold">Quick Actions</h2>
           <p className="mt-1 text-xs text-slate-400">
             Common administration tasks
           </p>
@@ -410,18 +359,11 @@ export default function AdminDashboardPage() {
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium">
-                      {item.title}
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      {item.description}
-                    </p>
+                    <p className="text-sm font-medium">{item.title}</p>
+                    <p className="text-xs text-slate-500">{item.description}</p>
                   </div>
 
-                  <ArrowRight
-                    size={16}
-                    className="text-slate-500"
-                  />
+                  <ArrowRight size={16} className="text-slate-500" />
                 </Link>
               );
             })}
@@ -433,9 +375,7 @@ export default function AdminDashboardPage() {
       <section className={panel}>
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-base font-semibold">
-              Recent Activity
-            </h2>
+            <h2 className="text-base font-semibold">Recent Activity</h2>
             <p className="mt-1 text-xs text-slate-400">
               Latest recorded administration events
             </p>

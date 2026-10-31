@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -30,28 +29,20 @@ interface SpectrumPoint {
 
 const SAMPLE_INTERVAL = 0.1;
 
-function gaussian(
-  x: number,
-  center: number,
-  width: number
-): number {
-  return Math.exp(
-    -0.5 * Math.pow((x - center) / width, 2)
-  );
+function gaussian(x: number, center: number, width: number): number {
+  return Math.exp(-0.5 * Math.pow((x - center) / width, 2));
 }
 
 function spectrumValue(
   time: number,
   flat: number,
-  peakDuration: number
+  peakDuration: number,
 ): number {
   // Phase 1: Almost flat readings for 5 seconds.
   if (time < flat) {
     return Math.max(
       0,
-      3 +
-        Math.sin(time * 17) * 1.3 +
-        Math.sin(time * 39) * 0.8
+      3 + Math.sin(time * 17) * 1.3 + Math.sin(time * 39) * 0.8,
     );
   }
 
@@ -66,15 +57,8 @@ function spectrumValue(
 
     const mountain =
       progress <= peakPosition
-        ? 295 *
-          Math.pow(progress / peakPosition, 2.1)
-        : 295 *
-          Math.exp(
-            -Math.pow(
-              (progress - peakPosition) / 0.09,
-              2
-            )
-          );
+        ? 295 * Math.pow(progress / peakPosition, 2.1)
+        : 295 * Math.exp(-Math.pow((progress - peakPosition) / 0.09, 2));
 
     const fluctuations =
       Math.sin(time * 25) * 8 +
@@ -87,10 +71,7 @@ function spectrumValue(
 
     return Math.max(
       0,
-      Math.min(
-        329,
-        4 + mountain + narrowPeaks + fluctuations
-      )
+      Math.min(329, 4 + mountain + narrowPeaks + fluctuations),
     );
   }
 
@@ -100,9 +81,7 @@ function spectrumValue(
 
   return Math.max(
     0,
-    3 +
-      18 * Math.exp(-settlingTime * 1.5) +
-      Math.sin(time * 19) * 2
+    3 + 18 * Math.exp(-settlingTime * 1.5) + Math.sin(time * 19) * 2,
   );
 }
 export default function LiveSpectrumSweep({
@@ -115,21 +94,12 @@ export default function LiveSpectrumSweep({
   onComplete,
 }: LiveSpectrumSweepProps) {
   const duration = Math.max(1, durationSeconds);
-  const flat = Math.max(
-    0,
-    Math.min(flatSeconds, duration)
-  );
-  const peak = Math.max(
-    0,
-    Math.min(peakSeconds, duration - flat)
-  );
+  const flat = Math.max(0, Math.min(flatSeconds, duration));
+  const peak = Math.max(0, Math.min(peakSeconds, duration - flat));
 
   const [elapsed, setElapsed] = useState(0);
-  const [isStreaming, setIsStreaming] =
-    useState(autoStart);
-  const [runId, setRunId] = useState(
-    autoStart ? 1 : 0
-  );
+  const [isStreaming, setIsStreaming] = useState(autoStart);
+  const [runId, setRunId] = useState(autoStart ? 1 : 0);
 
   const onCompleteRef = useRef(onComplete);
 
@@ -152,7 +122,7 @@ export default function LiveSpectrumSweep({
     const timer = window.setInterval(() => {
       const seconds = Math.min(
         duration,
-        (performance.now() - startTime) / 1000
+        (performance.now() - startTime) / 1000,
       );
 
       setElapsed(seconds);
@@ -176,24 +146,17 @@ export default function LiveSpectrumSweep({
   const data = useMemo<SpectrumPoint[]>(() => {
     if (runId === 0) return [];
 
-    const count = Math.floor(
-      elapsed / SAMPLE_INTERVAL
-    );
+    const count = Math.floor(elapsed / SAMPLE_INTERVAL);
 
     const readings: SpectrumPoint[] = [];
 
     for (let index = 0; index <= count; index++) {
-      const sampleTime =
-        index * SAMPLE_INTERVAL;
+      const sampleTime = index * SAMPLE_INTERVAL;
 
       readings.push({
         secondsAgo: sampleTime - elapsed,
         elapsed: sampleTime,
-        intensity: spectrumValue(
-          sampleTime,
-          flat,
-          peak
-        ),
+        intensity: spectrumValue(sampleTime, flat, peak),
       });
     }
 
@@ -202,32 +165,24 @@ export default function LiveSpectrumSweep({
       readings.push({
         secondsAgo: 0,
         elapsed,
-        intensity: spectrumValue(
-          elapsed,
-          flat,
-          peak
-        ),
+        intensity: spectrumValue(elapsed, flat, peak),
       });
     }
 
     return readings;
   }, [elapsed, runId, flat, peak]);
 
-  const isComplete =
-    runId > 0 &&
-    !isStreaming &&
-    elapsed >= duration;
+  const isComplete = runId > 0 && !isStreaming && elapsed >= duration;
 
-  const phase =
-    isComplete
-      ? "Stream completed"
-      : !isStreaming
-        ? "Ready to stream"
-        : elapsed < flat
-          ? "Baseline acquisition"
-          : elapsed < flat + peak
-            ? "Peak formation"
-            : "Signal settling";
+  const phase = isComplete
+    ? "Stream completed"
+    : !isStreaming
+      ? "Ready to stream"
+      : elapsed < flat
+        ? "Baseline acquisition"
+        : elapsed < flat + peak
+          ? "Peak formation"
+          : "Signal settling";
 
   return (
     <div className="mx-auto mt-8 w-full min-w-0 max-w-5xl rounded-xl border border-slate-800 bg-slate-950 p-6 text-slate-100 shadow-2xl">
@@ -257,9 +212,7 @@ export default function LiveSpectrumSweep({
 
             <span
               className={`relative inline-flex h-2 w-2 rounded-full ${
-                isStreaming
-                  ? "bg-emerald-500"
-                  : "bg-white"
+                isStreaming ? "bg-emerald-500" : "bg-white"
               }`}
             />
           </span>
@@ -309,27 +262,18 @@ export default function LiveSpectrumSweep({
               allowDataOverflow
             />
 
-            {/* <YAxis
-              domain={[0, 1]}
-              ticks={[0, 0.2, 0.4, 0.6, 0.8, 1]}
+            <YAxis
+              domain={[0, 335]}
+              ticks={[0, 100, 200, 300, 350, 400]}
               stroke="#64748b"
               fontSize={11}
               tickLine={false}
               dx={-5}
               width={55}
-            /> */}
-
-            <YAxis
-  domain={[0, 335]}
-  ticks={[0, 100, 200, 300, 350, 400]}
-  stroke="#64748b"
-  fontSize={11}
-  tickLine={false}
-  dx={-5}
-  width={55}
-/>
+            />
 
             <Tooltip
+              cursor={false}
               contentStyle={{
                 backgroundColor: "#020617",
                 borderColor: "#334155",
@@ -341,13 +285,9 @@ export default function LiveSpectrumSweep({
                 fontWeight: "bold",
               }}
               labelFormatter={(_, items) => {
-                const point = items?.[0]?.payload as
-                  | SpectrumPoint
-                  | undefined;
+                const point = items?.[0]?.payload as SpectrumPoint | undefined;
 
-                return point
-                  ? `${point.elapsed.toFixed(1)}s elapsed`
-                  : "";
+                return point ? `${point.elapsed.toFixed(1)}s elapsed` : "";
               }}
               formatter={(value) => [
                 typeof value === "number"
@@ -370,13 +310,6 @@ export default function LiveSpectrumSweep({
           </LineChart>
         </ResponsiveContainer>
       </div>
-
-      {/* <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
-        <span>{phase}</span>
-        <span className="tabular-nums">
-          {elapsed.toFixed(1)}s / {duration}s
-        </span>
-      </div> */}
     </div>
   );
 }

@@ -1,25 +1,16 @@
 import { NextResponse } from "next/server";
 
-import {
-  canSendOtp,
-  generateOtp,
-  saveOtp,
-} from "@/lib/auth-store";
+import { canSendOtp, generateOtp, saveOtp } from "@/lib/auth-store";
 
 import { formatIndianPhoneNumber } from "@/lib/phone";
 
-import {
-  verifyChallengeToken,
-} from "@/lib/session";
+import { verifyChallengeToken } from "@/lib/session";
 
 import { sendOtpSms } from "@/lib/twilio";
 
 export async function POST(request: Request) {
   try {
-    const {
-      mobileNumber,
-      challengeToken,
-    } = await request.json();
+    const { mobileNumber, challengeToken } = await request.json();
 
     if (
       typeof mobileNumber !== "string" ||
@@ -30,46 +21,38 @@ export async function POST(request: Request) {
           success: false,
           message: "Authentication challenge is required.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const formattedMobileNumber =
-      formatIndianPhoneNumber(mobileNumber);
+    const formattedMobileNumber = formatIndianPhoneNumber(mobileNumber);
 
     if (!formattedMobileNumber) {
       return NextResponse.json(
         {
           success: false,
-          message:
-            "Please enter a valid 10-digit Indian mobile number.",
+          message: "Please enter a valid 10-digit Indian mobile number.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Verify that username/password authentication
     // was successfully completed.
-    const challenge = await verifyChallengeToken(
-      challengeToken
-    );
+    const challenge = await verifyChallengeToken(challengeToken);
 
     if (!challenge) {
       return NextResponse.json(
         {
           success: false,
-          message:
-            "Your login session has expired. Please sign in again.",
+          message: "Your login session has expired. Please sign in again.",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     // Backend resend protection.
-    const otpPermission = canSendOtp(
-      formattedMobileNumber,
-      challengeToken
-    );
+    const otpPermission = canSendOtp(formattedMobileNumber, challengeToken);
 
     if (!otpPermission.allowed) {
       return NextResponse.json(
@@ -78,7 +61,7 @@ export async function POST(request: Request) {
           message: `Please wait ${otpPermission.retryAfter} seconds before requesting another OTP.`,
           retryAfter: otpPermission.retryAfter,
         },
-        { status: 429 }
+        { status: 429 },
       );
     }
 
@@ -95,33 +78,24 @@ export async function POST(request: Request) {
     );
 
     // Store only the HASH after SMS is accepted.
-    saveOtp(
-      formattedMobileNumber,
-      challengeToken,
-      otp
-    );
+    saveOtp(formattedMobileNumber, challengeToken, otp);
 
     return NextResponse.json(
       {
         success: true,
-        message:
-          "Verification code sent successfully.",
+        message: "Verification code sent successfully.",
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
-    console.error(
-      "Twilio OTP delivery error:",
-      error
-    );
+    console.error("Twilio OTP delivery error:", error);
 
     return NextResponse.json(
       {
         success: false,
-        message:
-          "Unable to send the verification code. Please try again.",
+        message: "Unable to send the verification code. Please try again.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -29,8 +28,7 @@ function readPreferences(): AdminPreferences {
 
     return {
       compactTables: value.compactTables === true,
-      timeFormat:
-        value.timeFormat === "24h" ? "24h" : "12h",
+      timeFormat: value.timeFormat === "24h" ? "24h" : "12h",
     };
   } catch {
     return DEFAULT_ADMIN_PREFERENCES;
@@ -38,9 +36,7 @@ function readPreferences(): AdminPreferences {
 }
 
 export function useAdminPreferences() {
-  const [preferences, setPreferences] = useState(
-    DEFAULT_ADMIN_PREFERENCES
-  );
+  const [preferences, setPreferences] = useState(DEFAULT_ADMIN_PREFERENCES);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -64,18 +60,13 @@ export function useAdminPreferences() {
     };
   }, []);
 
-  const updatePreferences = (
-    patch: Partial<AdminPreferences>
-  ) => {
+  const updatePreferences = (patch: Partial<AdminPreferences>) => {
     const next = {
       ...readPreferences(),
       ...patch,
     };
 
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(next)
-    );
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
 
     setPreferences(next);
     window.dispatchEvent(new Event(CHANGE_EVENT));
@@ -97,7 +88,7 @@ export function useAdminPreferences() {
 
 export function formatAdminDate(
   value: string | Date | null | undefined,
-  timeFormat: "12h" | "24h"
+  timeFormat: "12h" | "24h",
 ) {
   if (!value) return "—";
 

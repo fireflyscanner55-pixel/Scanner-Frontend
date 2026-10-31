@@ -12,7 +12,8 @@ export default function DashboardHeader() {
 
     try {
       const response = await fetch("/api/auth/logout", { method: "POST" });
-      if (!response.ok) throw new Error("Logout failed; scanner may still be active");
+      if (!response.ok)
+        throw new Error("Logout failed; scanner may still be active");
 
       router.replace("/login");
       router.refresh();

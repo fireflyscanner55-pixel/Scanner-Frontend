@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -38,9 +37,7 @@ export default function ScanPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.message ?? "Unable to start scanner"
-        );
+        throw new Error(data.message ?? "Unable to start scanner");
       }
 
       setIsScanning(true);
@@ -49,13 +46,8 @@ export default function ScanPage() {
       timeoutRef.current = setTimeout(() => {
         router.push("/scan/initialize");
       }, 3000);
-
     } catch (error) {
-      setStartError(
-        error instanceof Error
-          ? error.message
-          : "Scan failed"
-      );
+      setStartError(error instanceof Error ? error.message : "Scan failed");
       setIsStarting(false);
       startingRef.current = false;
     }
@@ -64,9 +56,7 @@ export default function ScanPage() {
   return (
     <main className={styles.viewport}>
       <div
-        className={`${styles.loader} ${
-          isScanning ? styles.active : ""
-        }`}
+        className={`${styles.loader} ${isScanning ? styles.active : ""}`}
         role="group"
         aria-label="Radioanalysis radar scanner"
       >
@@ -81,9 +71,7 @@ export default function ScanPage() {
             aria-label="Start scanner"
           >
             {isStarting ? (
-              <span className={styles.buttonText}>
-                Starting...
-              </span>
+              <span className={styles.buttonText}>Starting...</span>
             ) : (
               <svg
                 viewBox="0 0 24 24"

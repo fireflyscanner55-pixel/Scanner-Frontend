@@ -17,9 +17,7 @@ type PolarAnalysisChartProps = {
   data: PolarChartPoint[];
 };
 
-export default function PolarAnalysisChart({
-  data,
-}: PolarAnalysisChartProps) {
+export default function PolarAnalysisChart({ data }: PolarAnalysisChartProps) {
   return (
     <section
       className="
@@ -34,15 +32,8 @@ export default function PolarAnalysisChart({
     >
       <div className="h-[320px] w-full sm:h-[380px] lg:h-[430px]">
         <ResponsiveContainer width="100%" height="100%">
-          <RadarChart
-            data={data}
-            cx="50%"
-            cy="50%"
-            outerRadius="70%"
-          >
-            <PolarGrid
-              gridType="circle"
-            />
+          <RadarChart data={data} cx="50%" cy="50%" outerRadius="70%">
+            <PolarGrid gridType="circle" />
 
             <PolarAngleAxis
               dataKey="name"

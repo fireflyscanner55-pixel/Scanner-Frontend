@@ -1,4 +1,3 @@
-
 "use client";
 
 type RadiationAlertProps = {
@@ -6,9 +5,7 @@ type RadiationAlertProps = {
   remainingSeconds?: number;
 };
 
-export default function RadiationAlert({
-  scenario,
-}: RadiationAlertProps) {
+export default function RadiationAlert({ scenario }: RadiationAlertProps) {
   const positive = scenario === "positive";
 
   return (
@@ -29,11 +26,7 @@ export default function RadiationAlert({
               : "bg-emerald-500/10 text-emerald-400"
           }`}
         >
-          <svg
-            viewBox="0 0 100 100"
-            className="h-24 w-24"
-            aria-hidden="true"
-          >
+          <svg viewBox="0 0 100 100" className="h-24 w-24" aria-hidden="true">
             <circle
               cx="50"
               cy="50"
@@ -50,12 +43,7 @@ export default function RadiationAlert({
               />
             ))}
 
-            <circle
-              cx="50"
-              cy="50"
-              r="8"
-              fill="#101010"
-            />
+            <circle cx="50" cy="50" r="8" fill="#101010" />
           </svg>
         </div>
 
@@ -69,9 +57,7 @@ export default function RadiationAlert({
           </p>
 
           <h2 className="text-2xl font-bold uppercase tracking-wider text-white sm:text-3xl">
-            {positive
-              ? "Primary Radiation Found"
-              : "No Radiation Detected"}
+            {positive ? "Primary Radiation Found" : "No Radiation Detected"}
           </h2>
 
           <p className="text-sm text-white/60">

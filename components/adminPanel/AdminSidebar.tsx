@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -57,24 +56,16 @@ const navigation = [
   },
 ];
 
-export default function AdminSidebar({
-  open,
-  onClose,
-}: AdminSidebarProps) {
+export default function AdminSidebar({ open, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
 
-  const [showLogoutConfirm, setShowLogoutConfirm] =
-    useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  const [loggingOut, setLoggingOut] =
-    useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
-  const [logoutError, setLogoutError] =
-    useState("");
+  const [logoutError, setLogoutError] = useState("");
 
-  const [mounted] = useState(
-    () => typeof document !== "undefined"
-  );
+  const [mounted] = useState(() => typeof document !== "undefined");
 
   function openLogoutDialog() {
     setLogoutError("");
@@ -101,14 +92,11 @@ export default function AdminSidebar({
         cache: "no-store",
       });
 
-      const result = await response
-        .json()
-        .catch(() => null);
+      const result = await response.json().catch(() => null);
 
       if (!response.ok || result?.success !== true) {
         throw new Error(
-          result?.message ??
-            "Unable to log out. Please try again."
+          result?.message ?? "Unable to log out. Please try again.",
         );
       }
 
@@ -118,7 +106,7 @@ export default function AdminSidebar({
       setLogoutError(
         error instanceof Error
           ? error.message
-          : "Logout failed. Please try again."
+          : "Logout failed. Please try again.",
       );
 
       setLoggingOut(false);
@@ -156,8 +144,8 @@ export default function AdminSidebar({
           id="admin-logout-description"
           className="mt-2 text-sm leading-6 text-slate-400"
         >
-          Your administrator session will end and you
-          will be redirected to the login page.
+          Your administrator session will end and you will be redirected to the
+          login page.
         </p>
 
         {logoutError && (
@@ -202,11 +190,7 @@ export default function AdminSidebar({
           border-r border-slate-800 bg-[#0a1729]
           transition-transform duration-200
           lg:translate-x-0
-          ${
-            open
-              ? "translate-x-0"
-              : "-translate-x-full"
-          }
+          ${open ? "translate-x-0" : "-translate-x-full"}
         `}
       >
         {/* Logo */}
@@ -221,12 +205,8 @@ export default function AdminSidebar({
             </div>
 
             <div>
-              <p className="text-sm font-bold tracking-wide text-white">
-                RIID
-              </p>
-              <p className="text-[11px] text-slate-400">
-                Admin Console
-              </p>
+              <p className="text-sm font-bold tracking-wide text-white">RIID</p>
+              <p className="text-[11px] text-slate-400">Admin Console</p>
             </div>
           </Link>
 
@@ -246,23 +226,19 @@ export default function AdminSidebar({
             Management
           </p>
 
-          {navigation.map(
-            ({ label, href, icon: Icon }) => {
-              const active =
-                href === "/admin"
-                  ? pathname === href
-                  : pathname === href ||
-                    pathname.startsWith(`${href}/`);
+          {navigation.map(({ label, href, icon: Icon }) => {
+            const active =
+              href === "/admin"
+                ? pathname === href
+                : pathname === href || pathname.startsWith(`${href}/`);
 
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={onClose}
-                  aria-current={
-                    active ? "page" : undefined
-                  }
-                  className={`
+            return (
+              <Link
+                key={href}
+                href={href}
+                onClick={onClose}
+                aria-current={active ? "page" : undefined}
+                className={`
                     flex items-center gap-3 rounded-xl
                     px-3 py-3 text-sm font-medium transition
                     ${
@@ -271,13 +247,12 @@ export default function AdminSidebar({
                         : "text-slate-400 hover:bg-slate-800 hover:text-white"
                     }
                   `}
-                >
-                  <Icon size={18} />
-                  <span>{label}</span>
-                </Link>
-              );
-            }
-          )}
+              >
+                <Icon size={18} />
+                <span>{label}</span>
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Logout */}
@@ -296,10 +271,7 @@ export default function AdminSidebar({
         <div className="border-t border-slate-800 p-4">
           <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-3">
             <div className="flex items-center gap-2">
-              <Shield
-                size={16}
-                className="text-blue-400"
-              />
+              <Shield size={16} className="text-blue-400" />
               <span className="text-xs font-medium text-white">
                 Administration
               </span>
@@ -313,9 +285,7 @@ export default function AdminSidebar({
       </aside>
 
       {/* Render modal outside transformed sidebar */}
-      {mounted &&
-        logoutDialog &&
-        createPortal(logoutDialog, document.body)}
+      {mounted && logoutDialog && createPortal(logoutDialog, document.body)}
     </>
   );
 }

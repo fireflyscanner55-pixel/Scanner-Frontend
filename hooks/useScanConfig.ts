@@ -39,7 +39,7 @@ export function useScanConfig(): UseScanConfigResult {
         setError(
           err instanceof Error
             ? err.message
-            : "Unable to load scan configuration."
+            : "Unable to load scan configuration.",
         );
       } finally {
         if (!cancelled) {

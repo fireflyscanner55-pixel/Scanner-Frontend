@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -21,42 +20,33 @@ export default function InitializeScanPage() {
 
     const begin = async () => {
       try {
-        const [scenarioResponse, activeResponse] =
-          await Promise.all([
-            fetch("/api/user/scenario", {
-              cache: "no-store",
-            }),
-            fetch("/api/simulations/active", {
-              cache: "no-store",
-            }),
-          ]);
+        const [scenarioResponse, activeResponse] = await Promise.all([
+          fetch("/api/user/scenario", {
+            cache: "no-store",
+          }),
+          fetch("/api/simulations/active", {
+            cache: "no-store",
+          }),
+        ]);
 
-        const scenarioPayload =
-          await scenarioResponse.json();
+        const scenarioPayload = await scenarioResponse.json();
 
-        const activePayload =
-          await activeResponse.json();
+        const activePayload = await activeResponse.json();
 
         if (!scenarioResponse.ok) {
           throw new Error(
-            scenarioPayload.message ??
-              "Unable to get assigned scenario"
+            scenarioPayload.message ?? "Unable to get assigned scenario",
           );
         }
 
-        if (
-          !activeResponse.ok ||
-          activePayload.status !== "running"
-        ) {
+        if (!activeResponse.ok || activePayload.status !== "running") {
           throw new Error(
-            activePayload.message ??
-              "No active scan. Start a scan first."
+            activePayload.message ?? "No active scan. Start a scan first.",
           );
         }
 
-        const scenario = (
-          scenarioPayload.data ?? scenarioPayload
-        ) as UserScenarioConfig;
+        const scenario = (scenarioPayload.data ??
+          scenarioPayload) as UserScenarioConfig;
 
         if (
           !scenario ||
@@ -64,20 +54,15 @@ export default function InitializeScanPage() {
             scenario.scenarioType !== "negative")
         ) {
           throw new Error(
-            "A valid positive or negative scenario must be assigned by the administrator."
+            "A valid positive or negative scenario must be assigned by the administrator.",
           );
         }
 
-        const seconds = Number(
-          scenario.scanDurationSeconds
-        );
+        const seconds = Number(scenario.scanDurationSeconds);
 
-        if (
-          !Number.isFinite(seconds) ||
-          seconds < 1
-        ) {
+        if (!Number.isFinite(seconds) || seconds < 1) {
           throw new Error(
-            "The administrator must configure a scan duration of at least one second."
+            "The administrator must configure a scan duration of at least one second.",
           );
         }
 
@@ -85,19 +70,11 @@ export default function InitializeScanPage() {
 
         const endAt = Date.now() + seconds * 1000;
 
-        sessionStorage.setItem(
-          "radioanalysis_scan_end",
-          String(endAt)
-        );
+        sessionStorage.setItem("radioanalysis_scan_end", String(endAt));
 
-        sessionStorage.setItem(
-          "radioanalysis_scenario",
-          scenario.scenarioType
-        );
+        sessionStorage.setItem("radioanalysis_scenario", scenario.scenarioType);
 
-        sessionStorage.removeItem(
-          "radioanalysis_uplink_complete"
-        );
+        sessionStorage.removeItem("radioanalysis_uplink_complete");
 
         setDuration(seconds);
         setRemaining(seconds);
@@ -105,12 +82,7 @@ export default function InitializeScanPage() {
         const tick = () => {
           if (cancelled || redirected) return;
 
-          const left = Math.max(
-            0,
-            Math.ceil(
-              (endAt - Date.now()) / 1000
-            )
-          );
+          const left = Math.max(0, Math.ceil((endAt - Date.now()) / 1000));
 
           setRemaining(left);
 
@@ -135,7 +107,7 @@ export default function InitializeScanPage() {
           setError(
             cause instanceof Error
               ? cause.message
-              : "Unable to initialize scan"
+              : "Unable to initialize scan",
           );
         }
       }
@@ -155,18 +127,11 @@ export default function InitializeScanPage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-slate-950 px-4 py-10 text-white">
       {error ? (
-        <div
-          className="mt-10 text-center"
-          role="alert"
-        >
-          <p className="text-red-400">
-            {error}
-          </p>
+        <div className="mt-10 text-center" role="alert">
+          <p className="text-red-400">{error}</p>
 
           <button
-            onClick={() =>
-              router.replace("/scan")
-            }
+            onClick={() => router.replace("/scan")}
             className="mt-5 rounded-lg bg-white px-6 py-3 text-black"
           >
             Back to Scan

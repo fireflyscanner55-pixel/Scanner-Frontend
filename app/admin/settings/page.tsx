@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -19,9 +18,7 @@ import {
   XCircle,
 } from "lucide-react";
 
-import {
-  useAdminPreferences,
-} from "@/hooks/useAdminPreferences";
+import { useAdminPreferences } from "@/hooks/useAdminPreferences";
 
 type ServiceStatus = "idle" | "ok" | "error";
 
@@ -55,8 +52,7 @@ const INITIAL_CHECKS: ServiceCheck[] = [
   },
 ];
 
-const card =
-  "rounded-2xl border border-slate-800 bg-[#101f33] p-5 sm:p-6";
+const card = "rounded-2xl border border-slate-800 bg-[#101f33] p-5 sm:p-6";
 
 function SectionTitle({
   icon: Icon,
@@ -74,12 +70,8 @@ function SectionTitle({
       </div>
 
       <div>
-        <h2 className="text-base font-semibold text-white">
-          {title}
-        </h2>
-        <p className="mt-1 text-xs text-slate-400">
-          {description}
-        </p>
+        <h2 className="text-base font-semibold text-white">{title}</h2>
+        <p className="mt-1 text-xs text-slate-400">{description}</p>
       </div>
     </div>
   );
@@ -100,34 +92,21 @@ function SettingsLink({
       className="flex items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-950/40 p-4 transition hover:border-blue-500/40 hover:bg-slate-800/50"
     >
       <div>
-        <p className="text-sm font-medium text-white">
-          {title}
-        </p>
-        <p className="mt-1 text-xs text-slate-400">
-          {description}
-        </p>
+        <p className="text-sm font-medium text-white">{title}</p>
+        <p className="mt-1 text-xs text-slate-400">{description}</p>
       </div>
-      <ChevronRight
-        size={17}
-        className="shrink-0 text-slate-500"
-      />
+      <ChevronRight size={17} className="shrink-0 text-slate-500" />
     </Link>
   );
 }
 
 export default function AdminSettingsPage() {
-  const {
-    preferences,
-    ready,
-    updatePreferences,
-    resetPreferences,
-  } = useAdminPreferences();
+  const { preferences, ready, updatePreferences, resetPreferences } =
+    useAdminPreferences();
 
   const [checks, setChecks] = useState(INITIAL_CHECKS);
   const [checking, setChecking] = useState(false);
-  const [checkedAt, setCheckedAt] = useState<Date | null>(
-    null
-  );
+  const [checkedAt, setCheckedAt] = useState<Date | null>(null);
 
   const runDiagnostics = async () => {
     if (checking) return;
@@ -139,25 +118,17 @@ export default function AdminSettingsPage() {
       INITIAL_CHECKS.map(async (service) => {
         try {
           const controller = new AbortController();
-          const timeout = window.setTimeout(
-            () => controller.abort(),
-            8000
-          );
+          const timeout = window.setTimeout(() => controller.abort(), 8000);
 
           try {
-            const response = await fetch(
-              service.endpoint,
-              {
-                cache: "no-store",
-                signal: controller.signal,
-              }
-            );
+            const response = await fetch(service.endpoint, {
+              cache: "no-store",
+              signal: controller.signal,
+            });
 
             return {
               ...service,
-              status: response.ok
-                ? ("ok" as const)
-                : ("error" as const),
+              status: response.ok ? ("ok" as const) : ("error" as const),
               message: response.ok
                 ? "HTTP request successful"
                 : `HTTP ${response.status}`,
@@ -177,7 +148,7 @@ export default function AdminSettingsPage() {
                 : "Request failed",
           };
         }
-      })
+      }),
     );
 
     setChecks(results);
@@ -190,9 +161,7 @@ export default function AdminSettingsPage() {
       {/* Header */}
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold sm:text-3xl">
-            System Settings
-          </h1>
+          <h1 className="text-2xl font-bold sm:text-3xl">System Settings</h1>
           <p className="mt-2 text-sm text-slate-400">
             Administration preferences and system integration checks.
           </p>
@@ -220,9 +189,7 @@ export default function AdminSettingsPage() {
         <div className="divide-y divide-slate-800">
           <div className="flex flex-wrap items-center justify-between gap-4 py-4 first:pt-0">
             <div>
-              <p className="text-sm font-medium">
-                Compact Tables
-              </p>
+              <p className="text-sm font-medium">Compact Tables</p>
               <p className="mt-1 text-xs text-slate-400">
                 Reduce row padding in supported admin tables.
               </p>
@@ -249,9 +216,7 @@ export default function AdminSettingsPage() {
 
           <div className="flex flex-wrap items-center justify-between gap-4 py-4 last:pb-0">
             <div>
-              <p className="text-sm font-medium">
-                Time Format
-              </p>
+              <p className="text-sm font-medium">Time Format</p>
               <p className="mt-1 text-xs text-slate-400">
                 Choose how admin pages display dates and times.
               </p>
@@ -263,9 +228,7 @@ export default function AdminSettingsPage() {
               disabled={!ready}
               onChange={(event) =>
                 updatePreferences({
-                  timeFormat: event.target.value as
-                    | "12h"
-                    | "24h",
+                  timeFormat: event.target.value as "12h" | "24h",
                 })
               }
               className="h-9 w-[130px] rounded-lg border border-slate-700 bg-slate-950 px-3 text-xs outline-none focus:border-blue-500"
@@ -301,19 +264,14 @@ export default function AdminSettingsPage() {
 
         <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/40 p-4">
           <div className="flex items-center gap-2">
-            <CloudSun
-              size={17}
-              className="text-sky-400"
-            />
-            <p className="text-sm font-medium">
-              Location-Based Weather
-            </p>
+            <CloudSun size={17} className="text-sky-400" />
+            <p className="text-sm font-medium">Location-Based Weather</p>
           </div>
 
           <p className="mt-2 text-xs leading-relaxed text-slate-400">
-            The live scanner can obtain outdoor weather for
-            the location assigned in each user scenario,
-            when the weather endpoint is configured.
+            The live scanner can obtain outdoor weather for the location
+            assigned in each user scenario, when the weather endpoint is
+            configured.
           </p>
 
           <p className="mt-2 text-xs text-slate-500">
@@ -337,10 +295,7 @@ export default function AdminSettingsPage() {
             disabled={checking}
             className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium hover:bg-blue-500 disabled:opacity-50"
           >
-            <RefreshCw
-              size={16}
-              className={checking ? "animate-spin" : ""}
-            />
+            <RefreshCw size={16} className={checking ? "animate-spin" : ""} />
             {checking ? "Checking..." : "Run Checks"}
           </button>
         </div>
@@ -352,9 +307,7 @@ export default function AdminSettingsPage() {
               className="flex items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-950/40 p-4"
             >
               <div className="min-w-0">
-                <p className="text-sm font-medium">
-                  {service.label}
-                </p>
+                <p className="text-sm font-medium">{service.label}</p>
                 <p className="mt-1 break-all font-mono text-xs text-slate-500">
                   {service.endpoint}
                 </p>
@@ -362,20 +315,11 @@ export default function AdminSettingsPage() {
 
               <div className="flex shrink-0 items-center gap-2">
                 {service.status === "ok" ? (
-                  <CheckCircle2
-                    size={18}
-                    className="text-emerald-400"
-                  />
+                  <CheckCircle2 size={18} className="text-emerald-400" />
                 ) : service.status === "error" ? (
-                  <XCircle
-                    size={18}
-                    className="text-red-400"
-                  />
+                  <XCircle size={18} className="text-red-400" />
                 ) : (
-                  <Database
-                    size={18}
-                    className="text-slate-500"
-                  />
+                  <Database size={18} className="text-slate-500" />
                 )}
 
                 <span className="text-xs text-slate-400">
@@ -383,7 +327,7 @@ export default function AdminSettingsPage() {
                     ? "Not checked"
                     : service.status === "ok"
                       ? "Reachable"
-                      : service.message ?? "Failed"}
+                      : (service.message ?? "Failed")}
                 </span>
               </div>
             </div>
@@ -397,9 +341,8 @@ export default function AdminSettingsPage() {
         )}
 
         <p className="mt-3 text-xs text-slate-500">
-          These checks verify HTTP responses for the current
-          admin session. They are not database, MongoDB,
-          or infrastructure health checks.
+          These checks verify HTTP responses for the current admin session. They
+          are not database, MongoDB, or infrastructure health checks.
         </p>
       </section>
 
@@ -414,34 +357,23 @@ export default function AdminSettingsPage() {
         <div className="grid gap-3 md:grid-cols-2">
           <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4">
             <div className="flex items-center gap-2">
-              <ShieldCheck
-                size={17}
-                className="text-emerald-400"
-              />
-              <p className="text-sm font-medium">
-                Admin-Only Reports
-              </p>
+              <ShieldCheck size={17} className="text-emerald-400" />
+              <p className="text-sm font-medium">Admin-Only Reports</p>
             </div>
             <p className="mt-2 text-xs text-slate-400">
-              PDF generation and retrieval require
-              server-side administrator authorization.
+              PDF generation and retrieval require server-side administrator
+              authorization.
             </p>
           </div>
 
           <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4">
             <div className="flex items-center gap-2">
-              <KeyRound
-                size={17}
-                className="text-blue-400"
-              />
-              <p className="text-sm font-medium">
-                Authentication & OTP
-              </p>
+              <KeyRound size={17} className="text-blue-400" />
+              <p className="text-sm font-medium">Authentication & OTP</p>
             </div>
             <p className="mt-2 text-xs text-slate-400">
-              Authentication is controlled by the backend.
-              User-specific OTP preferences are managed
-              from User Management.
+              Authentication is controlled by the backend. User-specific OTP
+              preferences are managed from User Management.
             </p>
           </div>
         </div>

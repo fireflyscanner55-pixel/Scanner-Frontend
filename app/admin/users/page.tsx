@@ -1,6 +1,4 @@
-
 "use client";
-
 import {
   useCallback,
   useEffect,
@@ -8,7 +6,9 @@ import {
   useState,
   type SubmitEvent,
 } from "react";
+
 import Link from "next/link";
+
 import {
   Check,
   ChevronLeft,
@@ -26,20 +26,11 @@ import {
   X,
 } from "lucide-react";
 
-import {
-  adminRequest,
-  extractList,
-} from "@/lib/adminApi";
+import { adminRequest, extractList } from "@/lib/adminApi";
 
 import { ADMIN_ENDPOINTS } from "@/lib/adminEndpoints";
 
-
-import type {
-  RadioUser,
-  UserScenarioConfig,
-} from "@/types/radioanalysis";
-
-
+import type { RadioUser, UserScenarioConfig } from "@/types/radioanalysis";
 
 import { useAdminPreferences } from "@/hooks/useAdminPreferences";
 
@@ -68,17 +59,12 @@ const EMPTY_FORM: UserForm = {
   otpEnabled: false,
 };
 
-
 const fieldClass =
   "w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-blue-500 disabled:opacity-50";
 
-const cardClass =
-  "rounded-2xl border border-slate-800 bg-[#101f33]";
+const cardClass = "rounded-2xl border border-slate-800 bg-[#101f33]";
 
-async function apiRequest(
-  url: string,
-  options?: RequestInit
-) {
+async function apiRequest(url: string, options?: RequestInit) {
   const response = await fetch(url, {
     cache: "no-store",
     ...options,
@@ -89,19 +75,13 @@ async function apiRequest(
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(
-      data?.message ??
-        `Request failed (${response.status})`
-    );
+    throw new Error(data?.message ?? `Request failed (${response.status})`);
   }
 
   return data;
 }
 
-function extractArray<T>(
-  payload: unknown,
-  key: string
-): T[] {
+function extractArray<T>(payload: unknown, key: string): T[] {
   if (Array.isArray(payload)) return payload as T[];
 
   if (payload && typeof payload === "object") {
@@ -128,9 +108,7 @@ function Field({
 }) {
   return (
     <label className="block space-y-2">
-      <span className="text-xs font-medium text-slate-400">
-        {label}
-      </span>
+      <span className="text-xs font-medium text-slate-400">{label}</span>
       {children}
     </label>
   );
@@ -158,16 +136,13 @@ function UserModal({
           active: user.active,
           otpEnabled: user.otpEnabled,
         }
-      : { ...EMPTY_FORM }
+      : { ...EMPTY_FORM },
   );
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  const update = <K extends keyof UserForm>(
-    key: K,
-    value: UserForm[K]
-  ) => {
+  const update = <K extends keyof UserForm>(key: K, value: UserForm[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -186,33 +161,25 @@ function UserModal({
             role: form.role,
             active: form.active,
             otpEnabled: form.otpEnabled,
-            ...(form.password
-              ? { password: form.password }
-              : {}),
+            ...(form.password ? { password: form.password } : {}),
           }
         : form;
 
       await apiRequest(
-        editing
-          ? `/api/admin/users/${user!.id}`
-          : "/api/admin/users",
+        editing ? `/api/admin/users/${user!.id}` : "/api/admin/users",
         {
           method: editing ? "PATCH" : "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(body),
-        }
+        },
       );
 
       await onSaved();
       onClose();
     } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : "Unable to save user"
-      );
+      setError(cause instanceof Error ? cause.message : "Unable to save user");
     } finally {
       setSaving(false);
     }
@@ -235,10 +202,7 @@ function UserModal({
       >
         <div className="mb-6 flex items-start justify-between">
           <div>
-            <h2
-              id="user-modal-title"
-              className="text-xl font-semibold"
-            >
+            <h2 id="user-modal-title" className="text-xl font-semibold">
               {editing ? "Edit User" : "Create User"}
             </h2>
             <p className="mt-1 text-xs text-slate-400">
@@ -265,9 +229,7 @@ function UserModal({
               <input
                 className={fieldClass}
                 value={form.name}
-                onChange={(e) =>
-                  update("name", e.target.value)
-                }
+                onChange={(e) => update("name", e.target.value)}
                 placeholder="Full name"
               />
             </Field>
@@ -276,9 +238,7 @@ function UserModal({
               <input
                 className={fieldClass}
                 value={form.phone}
-                onChange={(e) =>
-                  update("phone", e.target.value)
-                }
+                onChange={(e) => update("phone", e.target.value)}
                 placeholder="Phone number"
               />
             </Field>
@@ -288,9 +248,7 @@ function UserModal({
             <input
               className={fieldClass}
               value={form.username}
-              onChange={(e) =>
-                update("username", e.target.value)
-              }
+              onChange={(e) => update("username", e.target.value)}
               required
               minLength={1}
               disabled={editing}
@@ -310,9 +268,7 @@ function UserModal({
               type="password"
               className={fieldClass}
               value={form.password}
-              onChange={(e) =>
-                update("password", e.target.value)
-              }
+              onChange={(e) => update("password", e.target.value)}
               required={!editing}
               minLength={8}
               autoComplete="new-password"
@@ -325,10 +281,7 @@ function UserModal({
               className={fieldClass}
               value={form.role}
               onChange={(e) =>
-                update(
-                  "role",
-                  e.target.value as UserForm["role"]
-                )
+                update("role", e.target.value as UserForm["role"])
               }
             >
               <option value="user">User</option>
@@ -342,9 +295,7 @@ function UserModal({
               <input
                 type="checkbox"
                 checked={form.active}
-                onChange={(e) =>
-                  update("active", e.target.checked)
-                }
+                onChange={(e) => update("active", e.target.checked)}
                 className="h-4 w-4 accent-blue-500"
               />
             </label>
@@ -359,19 +310,16 @@ function UserModal({
               <input
                 type="checkbox"
                 checked={form.otpEnabled}
-                onChange={(e) =>
-                  update("otpEnabled", e.target.checked)
-                }
+                onChange={(e) => update("otpEnabled", e.target.checked)}
                 className="h-4 w-4 accent-blue-500"
               />
             </label>
 
             {form.otpEnabled && (
               <p className="text-xs text-amber-300">
-                OTP verification is not yet configured in the
-                current backend. Enabling this setting will
-                prevent this user from signing in until OTP
-                support is implemented.
+                OTP verification is not yet configured in the current backend.
+                Enabling this setting will prevent this user from signing in
+                until OTP support is implemented.
               </p>
             )}
           </div>
@@ -397,11 +345,7 @@ function UserModal({
               disabled={saving}
               className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-50"
             >
-              {saving
-                ? "Saving..."
-                : editing
-                  ? "Save Changes"
-                  : "Create User"}
+              {saving ? "Saving..." : editing ? "Save Changes" : "Create User"}
             </button>
           </div>
         </form>
@@ -411,12 +355,9 @@ function UserModal({
 }
 
 export default function AdminUsersPage() {
-
   const { preferences } = useAdminPreferences();
   const [users, setUsers] = useState<RadioUser[]>([]);
-  const [scenarios, setScenarios] = useState<
-    UserScenarioConfig[]
-  >([]);
+  const [scenarios, setScenarios] = useState<UserScenarioConfig[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -424,20 +365,14 @@ export default function AdminUsersPage() {
   const [notice, setNotice] = useState("");
 
   const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] =
-    useState<RoleFilter>("all");
-  const [statusFilter, setStatusFilter] =
-    useState<StatusFilter>("all");
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [page, setPage] = useState(1);
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingUser, setEditingUser] =
-    useState<RadioUser | null>(null);
-  const [deletingUser, setDeletingUser] =
-    useState<RadioUser | null>(null);
-  const [busyUserId, setBusyUserId] = useState<string | null>(
-    null
-  );
+  const [editingUser, setEditingUser] = useState<RadioUser | null>(null);
+  const [deletingUser, setDeletingUser] = useState<RadioUser | null>(null);
+  const [busyUserId, setBusyUserId] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     const [userData, scenarioData] = await Promise.all([
@@ -446,12 +381,7 @@ export default function AdminUsersPage() {
     ]);
 
     setUsers(extractArray<RadioUser>(userData, "users"));
-    setScenarios(
-      extractArray<UserScenarioConfig>(
-        scenarioData,
-        "scenarios"
-      )
-    );
+    setScenarios(extractArray<UserScenarioConfig>(scenarioData, "scenarios"));
   }, []);
 
   useEffect(() => {
@@ -466,22 +396,15 @@ export default function AdminUsersPage() {
 
         if (cancelled) return;
 
-        setUsers(
-          extractArray<RadioUser>(userData, "users")
-        );
+        setUsers(extractArray<RadioUser>(userData, "users"));
         setScenarios(
-          extractArray<UserScenarioConfig>(
-            scenarioData,
-            "scenarios"
-          )
+          extractArray<UserScenarioConfig>(scenarioData, "scenarios"),
         );
         setError("");
       } catch (cause) {
         if (!cancelled) {
           setError(
-            cause instanceof Error
-              ? cause.message
-              : "Unable to load users"
+            cause instanceof Error ? cause.message : "Unable to load users",
           );
         }
       } finally {
@@ -497,13 +420,8 @@ export default function AdminUsersPage() {
 
   const scenarioMap = useMemo(
     () =>
-      new Map(
-        scenarios.map((scenario) => [
-          String(scenario.userId),
-          scenario,
-        ])
-      ),
-    [scenarios]
+      new Map(scenarios.map((scenario) => [String(scenario.userId), scenario])),
+    [scenarios],
   );
 
   const filteredUsers = useMemo(() => {
@@ -512,45 +430,32 @@ export default function AdminUsersPage() {
     return users.filter((user) => {
       const matchesText =
         !q ||
-        [user.name, user.username, user.phone]
-          .some((value) =>
-            String(value ?? "")
-              .toLowerCase()
-              .includes(q)
-          );
+        [user.name, user.username, user.phone].some((value) =>
+          String(value ?? "")
+            .toLowerCase()
+            .includes(q),
+        );
 
-      const matchesRole =
-        roleFilter === "all" || user.role === roleFilter;
+      const matchesRole = roleFilter === "all" || user.role === roleFilter;
 
       const matchesStatus =
         statusFilter === "all" ||
-        (statusFilter === "active"
-          ? user.active
-          : !user.active);
+        (statusFilter === "active" ? user.active : !user.active);
 
-      return (
-        matchesText &&
-        matchesRole &&
-        matchesStatus
-      );
+      return matchesText && matchesRole && matchesStatus;
     });
   }, [users, search, roleFilter, statusFilter]);
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredUsers.length / PAGE_SIZE)
-  );
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
 
   const currentPage = Math.min(page, totalPages);
 
   const pagedUsers = filteredUsers.slice(
     (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
+    currentPage * PAGE_SIZE,
   );
 
-  const activeCount = users.filter(
-    (user) => user.active
-  ).length;
+  const activeCount = users.filter((user) => user.active).length;
 
   const inactiveCount = users.length - activeCount;
 
@@ -585,16 +490,10 @@ export default function AdminUsersPage() {
       });
 
       await loadData();
-      setNotice(
-        user.active
-          ? "User deactivated."
-          : "User activated."
-      );
+      setNotice(user.active ? "User deactivated." : "User activated.");
     } catch (cause) {
       setError(
-        cause instanceof Error
-          ? cause.message
-          : "Unable to update user"
+        cause instanceof Error ? cause.message : "Unable to update user",
       );
     } finally {
       setBusyUserId(null);
@@ -618,9 +517,7 @@ export default function AdminUsersPage() {
       setNotice("User deleted successfully.");
     } catch (cause) {
       setError(
-        cause instanceof Error
-          ? cause.message
-          : "Unable to delete user"
+        cause instanceof Error ? cause.message : "Unable to delete user",
       );
     } finally {
       setBusyUserId(null);
@@ -653,10 +550,7 @@ export default function AdminUsersPage() {
             aria-label="Refresh users"
             className="rounded-xl border border-slate-700 p-3 hover:bg-slate-800 disabled:opacity-50"
           >
-            <RefreshCw
-              size={17}
-              className={loading ? "animate-spin" : ""}
-            />
+            <RefreshCw size={17} className={loading ? "animate-spin" : ""} />
           </button>
 
           <button
@@ -694,9 +588,7 @@ export default function AdminUsersPage() {
         ].map(({ name, value, icon: Icon, color }) => (
           <article key={name} className={`${cardClass} p-5`}>
             <Icon size={20} className={color} />
-            <p className="mt-4 text-sm text-slate-400">
-              {name}
-            </p>
+            <p className="mt-4 text-sm text-slate-400">{name}</p>
             <p className="mt-1 text-3xl font-semibold">
               {loading ? "—" : value}
             </p>
@@ -735,55 +627,55 @@ export default function AdminUsersPage() {
       {/* User table */}
       <section className={`${cardClass} overflow-hidden`}>
         <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 p-4 sm:flex-nowrap">
-  {/* Search input */}
-  <div className="relative min-w-0 flex-[1_1_100%] sm:flex-1">
-    <Search
-      size={16}
-      className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
-    />
+          {/* Search input */}
+          <div className="relative min-w-0 flex-[1_1_100%] sm:flex-1">
+            <Search
+              size={16}
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
+            />
 
-    <input
-      type="text"
-      value={search}
-      onChange={(event) => {
-        setSearch(event.target.value);
-        setPage(1);
-      }}
-      placeholder="Search users..."
-      className="h-9 w-full rounded-lg border border-slate-700 bg-slate-950 pl-9 pr-3 text-xs text-white outline-none transition-colors placeholder:text-slate-500 focus:border-blue-500"
-    />
-  </div>
+            <input
+              type="text"
+              value={search}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
+              placeholder="Search users..."
+              className="h-9 w-full rounded-lg border border-slate-700 bg-slate-950 pl-9 pr-3 text-xs text-white outline-none transition-colors placeholder:text-slate-500 focus:border-blue-500"
+            />
+          </div>
 
-  {/* Role filter */}
-  <select
-    aria-label="Filter by role"
-    value={roleFilter}
-    onChange={(event) => {
-      setRoleFilter(event.target.value as RoleFilter);
-      setPage(1);
-    }}
-    className="h-9 w-[108px] shrink-0 cursor-pointer rounded-lg border border-slate-700 bg-slate-950 px-2 text-xs text-slate-300 outline-none focus:border-blue-500"
-  >
-    <option value="all">All Roles</option>
-    <option value="user">Users</option>
-    <option value="admin">Admins</option>
-  </select>
+          {/* Role filter */}
+          <select
+            aria-label="Filter by role"
+            value={roleFilter}
+            onChange={(event) => {
+              setRoleFilter(event.target.value as RoleFilter);
+              setPage(1);
+            }}
+            className="h-9 w-[108px] shrink-0 cursor-pointer rounded-lg border border-slate-700 bg-slate-950 px-2 text-xs text-slate-300 outline-none focus:border-blue-500"
+          >
+            <option value="all">All Roles</option>
+            <option value="user">Users</option>
+            <option value="admin">Admins</option>
+          </select>
 
-  {/* Status filter */}
-  <select
-    aria-label="Filter by status"
-    value={statusFilter}
-    onChange={(event) => {
-      setStatusFilter(event.target.value as StatusFilter);
-      setPage(1);
-    }}
-    className="h-9 w-[120px] shrink-0 cursor-pointer rounded-lg border border-slate-700 bg-slate-950 px-2 text-xs text-slate-300 outline-none focus:border-blue-500"
-  >
-    <option value="all">All Statuses</option>
-    <option value="active">Active</option>
-    <option value="inactive">Inactive</option>
-  </select>
-</div>
+          {/* Status filter */}
+          <select
+            aria-label="Filter by status"
+            value={statusFilter}
+            onChange={(event) => {
+              setStatusFilter(event.target.value as StatusFilter);
+              setPage(1);
+            }}
+            className="h-9 w-[120px] shrink-0 cursor-pointer rounded-lg border border-slate-700 bg-slate-950 px-2 text-xs text-slate-300 outline-none focus:border-blue-500"
+          >
+            <option value="all">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[850px] text-left text-sm">
@@ -794,9 +686,7 @@ export default function AdminUsersPage() {
                 <th className="px-5 py-4">Status</th>
                 <th className="px-5 py-4">OTP</th>
                 <th className="px-5 py-4">Scenario</th>
-                <th className="px-5 py-4 text-right">
-                  Actions
-                </th>
+                <th className="px-5 py-4 text-right">Actions</th>
               </tr>
             </thead>
 
@@ -841,7 +731,7 @@ export default function AdminUsersPage() {
                               {user.name || user.username}
                             </p>
                             <p className="text-xs text-slate-400">
-                              @{user.username}
+                              {user.username}
                             </p>
                             {user.phone && (
                               <p className="text-xs text-slate-500">
@@ -854,12 +744,8 @@ export default function AdminUsersPage() {
 
                       <td className="px-5 py-4">
                         <span className="inline-flex items-center gap-1.5 text-slate-300">
-                          {user.role === "admin" && (
-                            <Shield size={14} />
-                          )}
-                          {user.role === "admin"
-                            ? "Admin"
-                            : "User"}
+                          {user.role === "admin" && <Shield size={14} />}
+                          {user.role === "admin" ? "Admin" : "User"}
                         </span>
                       </td>
 
@@ -883,9 +769,7 @@ export default function AdminUsersPage() {
                               : "text-slate-500"
                           }
                         >
-                          {user.otpEnabled
-                            ? "Enabled"
-                            : "Disabled"}
+                          {user.otpEnabled ? "Enabled" : "Disabled"}
                         </span>
                       </td>
 
@@ -937,9 +821,7 @@ export default function AdminUsersPage() {
                             disabled={busyUserId === user.id}
                             onClick={() => void toggleActive(user)}
                             title={
-                              user.active
-                                ? "Deactivate user"
-                                : "Activate user"
+                              user.active ? "Deactivate user" : "Activate user"
                             }
                             aria-label={`${user.active ? "Deactivate" : "Activate"} ${user.username}`}
                             className="rounded-lg border border-slate-700 p-2 text-amber-400 hover:bg-slate-800 disabled:opacity-50"
@@ -993,11 +875,7 @@ export default function AdminUsersPage() {
               type="button"
               aria-label="Next page"
               disabled={currentPage >= totalPages}
-              onClick={() =>
-                setPage((p) =>
-                  Math.min(totalPages, p + 1)
-                )
-              }
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               className="rounded-lg border border-slate-700 p-2 disabled:opacity-30"
             >
               <ChevronRight size={17} />
@@ -1028,20 +906,15 @@ export default function AdminUsersPage() {
               <Trash2 size={22} />
             </div>
 
-            <h2
-              id="delete-title"
-              className="text-xl font-semibold"
-            >
+            <h2 id="delete-title" className="text-xl font-semibold">
               Delete User?
             </h2>
 
             <p className="mt-3 text-sm leading-relaxed text-slate-400">
               Delete{" "}
-              <strong className="text-white">
-                @{deletingUser.username}
-              </strong>
-              ? Their assigned scenario will also be removed.
-              This action cannot be undone.
+              <strong className="text-white">{deletingUser.username}</strong>?
+              Their assigned scenario will also be removed. This action cannot
+              be undone.
             </p>
 
             <div className="mt-6 flex justify-end gap-3">

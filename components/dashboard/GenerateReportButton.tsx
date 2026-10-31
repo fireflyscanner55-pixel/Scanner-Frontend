@@ -26,8 +26,7 @@ export default function GenerateReportButton({
   isotope,
   isotopes = [],
 }: GenerateReportButtonProps) {
-  const [isGenerating, setIsGenerating] =
-    useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleGenerateReport = async () => {
     try {
@@ -41,42 +40,31 @@ export default function GenerateReportButton({
         status: entry.status?.join(", ") ?? undefined,
       }));
 
-      
-const report: ScanReport = {
-  scenarioId,
-  scenarioName,
+      const report: ScanReport = {
+        scenarioId,
+        scenarioName,
 
-  cpsTarget: config.cps.target,
-  doseRateTarget: config.doseRate.target,
-  batteryTarget: config.battery.initialLevel,
-  temperatureTarget: config.temperature.target,
-  pressureTarget: config.pressure.target,
+        cpsTarget: config.cps.target,
+        doseRateTarget: config.doseRate.target,
+        batteryTarget: config.battery.initialLevel,
+        temperatureTarget: config.temperature.target,
+        pressureTarget: config.pressure.target,
 
-  isotopeName: isotope?.name,
-  isotopeStatus:
-    isotope?.status?.join(", ") ?? undefined,
+        isotopeName: isotope?.name,
+        isotopeStatus: isotope?.status?.join(", ") ?? undefined,
 
-  isotopes: isotopeEntries.length
-    ? isotopeEntries
-    : undefined,
+        isotopes: isotopeEntries.length ? isotopeEntries : undefined,
 
-  createdAt: new Date().toISOString(),
-};
+        createdAt: new Date().toISOString(),
+      };
 
-
-      const savedReport =
-        await radioApi.createScanReport(report);
+      const savedReport = await radioApi.createScanReport(report);
 
       generateScanReportPdf(savedReport);
     } catch (error) {
-      console.error(
-        "Failed to generate scan report:",
-        error
-      );
+      console.error("Failed to generate scan report:", error);
 
-      window.alert(
-        "Unable to generate the scan report."
-      );
+      window.alert("Unable to generate the scan report.");
     } finally {
       setIsGenerating(false);
     }
@@ -89,9 +77,7 @@ const report: ScanReport = {
       disabled={isGenerating}
       className="rounded-lg bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
     >
-      {isGenerating
-        ? "Generating Report..."
-        : "Generate PDF Report"}
+      {isGenerating ? "Generating Report..." : "Generate PDF Report"}
     </button>
   );
 }
