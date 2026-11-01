@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import type { UserScenarioConfig } from "@/types/radioanalysis";
 
 const VIDEOS = [
-  "/assets/uplink_Videos/Timeline_1.mp4",
   "/assets/uplink_Videos/Timeline_2.mp4",
   "/assets/uplink_Videos/Timeline_3.mp4",
 ] as const;
